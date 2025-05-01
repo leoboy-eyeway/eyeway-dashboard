@@ -1,12 +1,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Pothole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { supabase } from '@/integrations/supabase/client';
 
-// This is a mock component since we can't use actual mapbox in this environment
-// In a real application, you would use mapbox-gl or similar library
 interface MapViewProps {
   potholes: Pothole[];
   onSelectPothole: (pothole: Pothole) => void;
@@ -14,127 +14,131 @@ interface MapViewProps {
 
 export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [mapToken, setMapToken] = useState<string>('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<{[key: string]: L.Marker}>({});
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [mapError, setMapError] = useState<string | null>(null);
 
-  // This would initialize the map in a real application
+  // Iligan City center coordinates
+  const iliganCity = {
+    lat: 8.228, 
+    lng: 124.2452
+  };
+
   useEffect(() => {
-    if (!mapToken) return;
-    
-    console.log('Initializing map with token:', mapToken);
-    // In a real app, we would initialize Mapbox here
-    
+    if (!mapContainerRef.current) return;
+
+    // Initialize map
+    mapRef.current = L.map(mapContainerRef.current).setView([iliganCity.lat, iliganCity.lng], 14);
+
+    // Add OpenStreetMap tile layer (free to use)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mapRef.current);
+
+    // Add scale control
+    L.control.scale().addTo(mapRef.current);
+
     toast({
       title: "Map initialized",
-      description: "The map is now ready to use.",
+      description: "Showing Iligan City, Philippines",
     });
-    
-    setShowTokenInput(false);
-  }, [mapToken, toast]);
 
-  const handleTokenSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const input = (e.target as HTMLFormElement).token.value;
-    if (!input) {
-      toast({
-        variant: "destructive",
-        title: "Token required",
-        description: "Please enter a Mapbox token to initialize the map.",
-      });
-      return;
-    }
-    setMapToken(input);
-  };
+    setIsLoading(false);
 
-  const getSeverityColor = (severity: Pothole['severity']) => {
-    switch (severity) {
-      case 'low': return 'bg-green-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'high': return 'bg-orange-500';
-      case 'critical': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [toast]);
+
+  // Update markers when potholes change
+  useEffect(() => {
+    if (!mapRef.current || isLoading) return;
+
+    // Clear existing markers
+    Object.values(markersRef.current).forEach(marker => marker.remove());
+    markersRef.current = {};
+
+    // Add markers for potholes
+    potholes.forEach(pothole => {
+      try {
+        const severityColors = {
+          'low': 'green',
+          'medium': 'yellow',
+          'high': 'orange',
+          'critical': 'red'
+        };
+
+        const markerColor = severityColors[pothole.severity] || 'blue';
+        
+        const customIcon = L.divIcon({
+          className: 'custom-div-icon',
+          html: `<div style="background-color: ${markerColor}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white;"></div>`,
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+
+        const marker = L.marker(
+          [pothole.location.lat, pothole.location.lng], 
+          { icon: customIcon }
+        ).addTo(mapRef.current!);
+
+        marker.on('click', () => {
+          onSelectPothole(pothole);
+        });
+
+        // Add tooltip
+        marker.bindTooltip(`Pothole #${pothole.id} - ${pothole.severity.toUpperCase()}`);
+
+        markersRef.current[pothole.id] = marker;
+      } catch (error) {
+        console.error("Error adding marker:", error);
+      }
+    });
+  }, [potholes, isLoading, onSelectPothole]);
 
   return (
     <Card className="border border-gray-200 shadow-sm">
       <CardContent className="p-0">
-        {showTokenInput ? (
+        {mapError ? (
           <div className="flex flex-col items-center justify-center p-8 space-y-4 min-h-[400px]">
-            <h3 className="text-lg font-semibold">Map Initialization Required</h3>
+            <h3 className="text-lg font-semibold text-red-500">Map Error</h3>
             <p className="text-sm text-gray-600 max-w-md text-center">
-              To display the interactive map, please enter your Mapbox public token.
-              You can get one by signing up at mapbox.com.
+              {mapError}
             </p>
-            <form onSubmit={handleTokenSubmit} className="w-full max-w-md space-y-3">
-              <input 
-                type="text"
-                name="token"
-                placeholder="Enter your Mapbox public token"
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
-              <Button 
-                type="submit" 
-                className="w-full bg-pothole-500 hover:bg-pothole-600 text-white"
-              >
-                Initialize Map
-              </Button>
-            </form>
           </div>
         ) : (
           <div className="relative w-full h-[600px] bg-gray-100 rounded-b-lg">
-            {/* This would be the actual map in a real application */}
-            <div ref={mapContainerRef} className="absolute inset-0 bg-gray-200">
-              {/* Mock map UI */}
-              <div className="w-full h-full bg-[url('/placeholder.svg')] bg-cover bg-center opacity-70">
-                {/* Simulated pothole markers */}
-                <div className="absolute inset-0 p-4">
-                  <div className="relative w-full h-full">
-                    {potholes.map((pothole, index) => {
-                      // Create pseudo-random positions for demonstration
-                      const left = `${(pothole.location.lat * 10) % 90}%`;
-                      const top = `${(pothole.location.lng * 10) % 90}%`;
-                      
-                      return (
-                        <button
-                          key={pothole.id}
-                          className={`absolute w-4 h-4 rounded-full ${getSeverityColor(pothole.severity)} border-2 border-white shadow-md transform -translate-x-1/2 -translate-y-1/2 hover:scale-150 transition-transform z-10`}
-                          style={{ left, top }}
-                          onClick={() => onSelectPothole(pothole)}
-                        />
-                      );
-                    })}
-                  </div>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 z-10">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pothole-500"></div>
+              </div>
+            )}
+            <div ref={mapContainerRef} className="absolute inset-0 rounded-b-lg"></div>
+            
+            {/* Map Legend */}
+            <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-[400]">
+              <div className="text-xs font-medium mb-2">Severity</div>
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="text-xs">Low</span>
                 </div>
-              </div>
-              
-              {/* Map Controls */}
-              <div className="absolute top-4 right-4 flex flex-col space-y-2">
-                <Button size="icon" variant="secondary" className="w-8 h-8 rounded-full">+</Button>
-                <Button size="icon" variant="secondary" className="w-8 h-8 rounded-full">-</Button>
-              </div>
-              
-              {/* Map Legend */}
-              <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md">
-                <div className="text-xs font-medium mb-2">Severity</div>
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-xs">Low</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <span className="text-xs">Medium</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                    <span className="text-xs">High</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <span className="text-xs">Critical</span>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <span className="text-xs">Medium</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                  <span className="text-xs">High</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                  <span className="text-xs">Critical</span>
                 </div>
               </div>
             </div>

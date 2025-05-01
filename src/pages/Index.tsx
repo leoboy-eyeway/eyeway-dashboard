@@ -5,17 +5,69 @@ import PotholeFilters from '@/components/PotholeFilters';
 import MapView from '@/components/MapView';
 import PotholeDetails from '@/components/PotholeDetails';
 import DataVisualization from '@/components/DataVisualization';
-import { potholes as initialPotholes } from '@/data/potholes';
 import { Pothole, Status, Severity } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
-  const [potholes, setPotholes] = useState<Pothole[]>(initialPotholes);
-  const [filteredPotholes, setFilteredPotholes] = useState<Pothole[]>(initialPotholes);
+  const [potholes, setPotholes] = useState<Pothole[]>([]);
+  const [filteredPotholes, setFilteredPotholes] = useState<Pothole[]>([]);
   const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null);
   const [severityFilter, setSeverityFilter] = useState<Severity | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+
+  // Fetch potholes from Supabase
+  useEffect(() => {
+    const fetchPotholes = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('potholes')
+          .select('*');
+
+        if (error) {
+          throw error;
+        }
+
+        if (data) {
+          // Transform Supabase data to match our Pothole type
+          const transformedData: Pothole[] = data.map(item => ({
+            id: item.id,
+            location: {
+              lat: parseFloat(item.latitude),
+              lng: parseFloat(item.longitude),
+              address: `Road ID: ${item.road_id}`
+            },
+            severity: item.severity as Severity,
+            status: item.status as Status,
+            detectionAccuracy: item.detection_accuracy / 100,
+            reportDate: item.report_date,
+            scheduledRepairDate: item.scheduled_repair_date || undefined,
+            completionDate: item.completion_date || undefined,
+            images: item.image_url ? [item.image_url] : [],
+            description: item.description || undefined,
+            reportedBy: item.reported_by || undefined
+          }));
+
+          setPotholes(transformedData);
+          console.log("Fetched potholes:", transformedData);
+        }
+      } catch (error) {
+        console.error('Error fetching potholes:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching potholes",
+          description: "Could not load potholes data. Please try again later."
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPotholes();
+  }, [toast]);
 
   useEffect(() => {
     // Apply filters
@@ -36,43 +88,73 @@ const Index = () => {
     setSelectedPothole(pothole);
   };
 
-  const handleUpdatePotholeStatus = (id: string, newStatus: Status) => {
-    setPotholes(prev => 
-      prev.map(p => 
-        p.id === id 
+  const handleUpdatePotholeStatus = async (id: string, newStatus: Status) => {
+    try {
+      // Update in Supabase
+      const updateData: any = { 
+        status: newStatus 
+      };
+      
+      // Add dates based on status
+      if (newStatus === 'scheduled') {
+        updateData.scheduled_repair_date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      } else if (newStatus === 'completed') {
+        updateData.completion_date = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('potholes')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Update local state
+      setPotholes(prev => 
+        prev.map(p => 
+          p.id === id 
+            ? {
+                ...p,
+                status: newStatus,
+                scheduledRepairDate: newStatus === 'scheduled' 
+                  ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+                  : p.scheduledRepairDate,
+                completionDate: newStatus === 'completed'
+                  ? new Date().toISOString()
+                  : p.completionDate
+              }
+            : p
+        )
+      );
+      
+      toast({
+        title: "Status updated",
+        description: `Pothole #${id} is now ${newStatus.replace('-', ' ')}.`,
+      });
+      
+      // Update selected pothole if it's the one being modified
+      setSelectedPothole(prev => 
+        prev && prev.id === id 
           ? {
-              ...p,
+              ...prev,
               status: newStatus,
               scheduledRepairDate: newStatus === 'scheduled' 
                 ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-                : p.scheduledRepairDate,
+                : prev.scheduledRepairDate,
               completionDate: newStatus === 'completed'
                 ? new Date().toISOString()
-                : p.completionDate
+                : prev.completionDate
             }
-          : p
-      )
-    );
-    
-    toast({
-      title: "Status updated",
-      description: `Pothole #${id} is now ${newStatus.replace('-', ' ')}.`,
-    });
-    
-    setSelectedPothole(prev => 
-      prev && prev.id === id 
-        ? {
-            ...prev,
-            status: newStatus,
-            scheduledRepairDate: newStatus === 'scheduled' 
-              ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-              : prev.scheduledRepairDate,
-            completionDate: newStatus === 'completed'
-              ? new Date().toISOString()
-              : prev.completionDate
-          }
-        : prev
-    );
+          : prev
+      );
+    } catch (error) {
+      console.error('Error updating pothole status:', error);
+      toast({
+        variant: "destructive",
+        title: "Update failed",
+        description: "Could not update the pothole status. Please try again.",
+      });
+    }
   };
 
   const handleClearFilters = () => {
@@ -99,10 +181,16 @@ const Index = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <MapView 
-              potholes={filteredPotholes} 
-              onSelectPothole={handleSelectPothole} 
-            />
+            {isLoading ? (
+              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex items-center justify-center h-[600px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pothole-500"></div>
+              </div>
+            ) : (
+              <MapView 
+                potholes={filteredPotholes} 
+                onSelectPothole={handleSelectPothole} 
+              />
+            )}
           </div>
           
           <div className="space-y-6">

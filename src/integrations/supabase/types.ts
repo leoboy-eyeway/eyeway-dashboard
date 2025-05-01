@@ -9,7 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      potholes: {
+        Row: {
+          completion_date: string | null
+          created_at: string
+          description: string | null
+          detection_accuracy: number
+          id: string
+          image_url: string | null
+          latitude: number
+          longitude: number
+          pothole_number: number
+          report_date: string
+          reported_by: string | null
+          road_id: string
+          scheduled_repair_date: string | null
+          severity: string
+          status: string
+        }
+        Insert: {
+          completion_date?: string | null
+          created_at?: string
+          description?: string | null
+          detection_accuracy: number
+          id?: string
+          image_url?: string | null
+          latitude: number
+          longitude: number
+          pothole_number: number
+          report_date?: string
+          reported_by?: string | null
+          road_id: string
+          scheduled_repair_date?: string | null
+          severity: string
+          status: string
+        }
+        Update: {
+          completion_date?: string | null
+          created_at?: string
+          description?: string | null
+          detection_accuracy?: number
+          id?: string
+          image_url?: string | null
+          latitude?: number
+          longitude?: number
+          pothole_number?: number
+          report_date?: string
+          reported_by?: string | null
+          road_id?: string
+          scheduled_repair_date?: string | null
+          severity?: string
+          status?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
