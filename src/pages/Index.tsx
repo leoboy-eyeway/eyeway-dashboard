@@ -5,7 +5,7 @@ import PotholeFilters from '@/components/PotholeFilters';
 import MapView from '@/components/MapView';
 import PotholeDetails from '@/components/PotholeDetails';
 import DataVisualization from '@/components/DataVisualization';
-import { Pothole, Status, Severity } from '@/types';
+import { Pothole, Status, Severity, LidarData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -33,24 +33,49 @@ const Index = () => {
 
         if (data) {
           // Transform Supabase data to match our Pothole type
-          const transformedData: Pothole[] = data.map(item => ({
-            id: item.id,
-            location: {
-              lat: Number(item.latitude),
-              lng: Number(item.longitude),
-              address: `Road ID: ${item.road_id}`
-            },
-            severity: item.severity as Severity,
-            status: item.status as Status,
-            detectionAccuracy: item.detection_accuracy / 100,
-            reportDate: item.report_date,
-            scheduledRepairDate: item.scheduled_repair_date || undefined,
-            completionDate: item.completion_date || undefined,
-            images: item.image_url ? [item.image_url] : [],
-            description: item.description || undefined,
-            reportedBy: item.reported_by || undefined,
-            lidarData: item.lidar_data
-          }));
+          const transformedData: Pothole[] = data.map(item => {
+            // Parse lidarData as our LidarData type
+            let parsedLidarData: LidarData | undefined = undefined;
+            
+            if (item.lidar_data) {
+              parsedLidarData = {
+                pointCloud: item.lidar_data.pointCloud ? {
+                  density: Number(item.lidar_data.pointCloud.density),
+                  points: Number(item.lidar_data.pointCloud.points),
+                  accuracy: Number(item.lidar_data.pointCloud.accuracy)
+                } : undefined,
+                surface: item.lidar_data.surface ? {
+                  depth: Number(item.lidar_data.surface.depth),
+                  width: Number(item.lidar_data.surface.width),
+                  area: Number(item.lidar_data.surface.area)
+                } : undefined,
+                classification: item.lidar_data.classification ? {
+                  confidence: Number(item.lidar_data.classification.confidence),
+                  model: String(item.lidar_data.classification.model),
+                  scan_date: String(item.lidar_data.classification.scan_date)
+                } : undefined
+              };
+            }
+            
+            return {
+              id: item.id,
+              location: {
+                lat: Number(item.latitude),
+                lng: Number(item.longitude),
+                address: `Road ID: ${item.road_id}`
+              },
+              severity: item.severity as Severity,
+              status: item.status as Status,
+              detectionAccuracy: item.detection_accuracy / 100,
+              reportDate: item.report_date,
+              scheduledRepairDate: item.scheduled_repair_date || undefined,
+              completionDate: item.completion_date || undefined,
+              images: item.image_url ? [item.image_url] : [],
+              description: item.description || undefined,
+              reportedBy: item.reported_by || undefined,
+              lidarData: parsedLidarData
+            };
+          });
 
           setPotholes(transformedData);
           console.log("Fetched potholes:", transformedData);
