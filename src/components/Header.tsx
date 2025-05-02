@@ -37,7 +37,7 @@ export const Header = () => {
               <path d="M11 8v8" />
             </svg>
           </div>
-          <h1 className="text-xl md:text-2xl font-bold">Pothole Pulse</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Eyeway 2.0 Pothole Tracking Dashboard</h1>
         </div>
         
         <div className="flex items-center space-x-4">

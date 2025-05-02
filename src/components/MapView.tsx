@@ -157,11 +157,6 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
                 </div>
               </div>
             </div>
-            
-            {/* Eyeway 2.0 Logo */}
-            <div className="absolute top-4 left-4 bg-white p-1 rounded-md shadow-md z-[400]">
-              <img src="/lovable-uploads/9fb6e6fa-15f6-4b6c-a82e-cac64545e5fe.png" alt="Eyeway 2.0 Logo" className="h-8" />
-            </div>
           </div>
         )}
       </CardContent>
