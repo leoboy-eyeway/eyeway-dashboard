@@ -196,7 +196,7 @@ const Index = () => {
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-6 space-y-6 max-w-7xl">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Eyeway 2.0 Pothole Tracking Dashboard</h1>
+        {/* Removed redundant title here */}
         
         <PotholeFilters 
           severity={severityFilter}

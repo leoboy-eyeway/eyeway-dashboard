@@ -2,10 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Pothole } from '@/types';
-import { useToast } from '@/hooks/use-toast';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { supabase } from '@/integrations/supabase/client';
 
 interface MapViewProps {
   potholes: Pothole[];
@@ -16,7 +14,6 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{[key: string]: L.Marker}>({});
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
 
@@ -40,10 +37,7 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
     // Add scale control
     L.control.scale().addTo(mapRef.current);
 
-    toast({
-      title: "Map initialized",
-      description: "Showing Iligan City, Philippines",
-    });
+    // Removed toast notification for map initialization
 
     setIsLoading(false);
 
@@ -53,7 +47,7 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
         mapRef.current = null;
       }
     };
-  }, [toast]);
+  }, []);
 
   // Update markers when potholes change
   useEffect(() => {

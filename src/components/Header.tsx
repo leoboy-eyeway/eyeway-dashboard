@@ -57,7 +57,7 @@ export const Header = () => {
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">{currentUser.name}</p>
-                    <p className="text-xs text-muted-foreground">{currentUser.email}</p>
+                    <p className="text-xs text-muted-foreground">admin@eyeway.com</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
