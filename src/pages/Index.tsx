@@ -38,21 +38,24 @@ const Index = () => {
             let parsedLidarData: LidarData | undefined = undefined;
             
             if (item.lidar_data) {
+              // Cast the item.lidar_data to a more specific type to work with it
+              const lidarJson = item.lidar_data as Record<string, any>;
+              
               parsedLidarData = {
-                pointCloud: item.lidar_data.pointCloud ? {
-                  density: Number(item.lidar_data.pointCloud.density),
-                  points: Number(item.lidar_data.pointCloud.points),
-                  accuracy: Number(item.lidar_data.pointCloud.accuracy)
+                pointCloud: lidarJson.pointCloud ? {
+                  density: Number(lidarJson.pointCloud.density),
+                  points: Number(lidarJson.pointCloud.points),
+                  accuracy: Number(lidarJson.pointCloud.accuracy)
                 } : undefined,
-                surface: item.lidar_data.surface ? {
-                  depth: Number(item.lidar_data.surface.depth),
-                  width: Number(item.lidar_data.surface.width),
-                  area: Number(item.lidar_data.surface.area)
+                surface: lidarJson.surface ? {
+                  depth: Number(lidarJson.surface.depth),
+                  width: Number(lidarJson.surface.width),
+                  area: Number(lidarJson.surface.area)
                 } : undefined,
-                classification: item.lidar_data.classification ? {
-                  confidence: Number(item.lidar_data.classification.confidence),
-                  model: String(item.lidar_data.classification.model),
-                  scan_date: String(item.lidar_data.classification.scan_date)
+                classification: lidarJson.classification ? {
+                  confidence: Number(lidarJson.classification.confidence),
+                  model: String(lidarJson.classification.model),
+                  scan_date: String(lidarJson.classification.scan_date)
                 } : undefined
               };
             }
