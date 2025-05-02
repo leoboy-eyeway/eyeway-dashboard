@@ -89,6 +89,21 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
 
         marker.on('click', () => {
           onSelectPothole(pothole);
+          
+          // Show a popup with basic severity information
+          const lidarInfo = pothole.lidarData ? 
+            `<strong>LiDAR Data Available</strong><br>` +
+            `Depth: ${pothole.lidarData.surface?.depth}cm<br>` +
+            `Width: ${pothole.lidarData.surface?.width}cm<br>` 
+            : 'No LiDAR data available';
+            
+          marker.bindPopup(
+            `<div class="text-sm">
+              <strong>Pothole #${pothole.id}</strong><br>
+              Severity: <span class="font-bold">${pothole.severity.toUpperCase()}</span><br>
+              ${lidarInfo}
+            </div>`
+          ).openPopup();
         });
 
         // Add tooltip
@@ -141,6 +156,11 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
                   <span className="text-xs">Critical</span>
                 </div>
               </div>
+            </div>
+            
+            {/* Eyeway 2.0 Logo */}
+            <div className="absolute top-4 left-4 bg-white p-1 rounded-md shadow-md z-[400]">
+              <img src="/lovable-uploads/9fb6e6fa-15f6-4b6c-a82e-cac64545e5fe.png" alt="Eyeway 2.0 Logo" className="h-8" />
             </div>
           </div>
         )}

@@ -36,8 +36,8 @@ const Index = () => {
           const transformedData: Pothole[] = data.map(item => ({
             id: item.id,
             location: {
-              lat: parseFloat(item.latitude),
-              lng: parseFloat(item.longitude),
+              lat: Number(item.latitude),
+              lng: Number(item.longitude),
               address: `Road ID: ${item.road_id}`
             },
             severity: item.severity as Severity,
@@ -48,7 +48,8 @@ const Index = () => {
             completionDate: item.completion_date || undefined,
             images: item.image_url ? [item.image_url] : [],
             description: item.description || undefined,
-            reportedBy: item.reported_by || undefined
+            reportedBy: item.reported_by || undefined,
+            lidarData: item.lidar_data
           }));
 
           setPotholes(transformedData);
@@ -167,7 +168,7 @@ const Index = () => {
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-6 space-y-6 max-w-7xl">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Pothole Tracking Dashboard</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Eyeway 2.0 Pothole Tracking Dashboard</h1>
         
         <PotholeFilters 
           severity={severityFilter}
@@ -205,15 +206,17 @@ const Index = () => {
                 <p className="text-gray-500">Select a pothole on the map to view details</p>
               </div>
             )}
-            
-            <DataVisualization potholes={potholes} />
           </div>
+        </div>
+        
+        <div className="mt-8 w-full">
+          <DataVisualization potholes={potholes} />
         </div>
       </main>
       
       <footer className="bg-white border-t border-gray-200 py-4">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Pothole Pulse. All rights reserved.
+          &copy; {new Date().getFullYear()} Eyeway 2.0. All rights reserved.
         </div>
       </footer>
     </div>

@@ -18,6 +18,7 @@ export type Database = {
           id: string
           image_url: string | null
           latitude: number
+          lidar_data: Json | null
           longitude: number
           pothole_number: number
           report_date: string
@@ -35,6 +36,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           latitude: number
+          lidar_data?: Json | null
           longitude: number
           pothole_number: number
           report_date?: string
@@ -52,6 +54,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           latitude?: number
+          lidar_data?: Json | null
           longitude?: number
           pothole_number?: number
           report_date?: string
