@@ -297,7 +297,11 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                     <XAxis dataKey="name" />
                     <YAxis domain={[0, 100]} unit="%" />
                     <Tooltip
-                      formatter={(value) => [`${value.toFixed(1)}%`, 'Accuracy']}
+                      formatter={(value) => {
+                        // Fix: Check if value is a number before calling toFixed
+                        const formattedValue = typeof value === 'number' ? `${value.toFixed(1)}%` : `${value}%`;
+                        return [formattedValue, 'Accuracy'];
+                      }}
                       contentStyle={{ background: 'white', border: '1px solid #ccc' }}
                     />
                     <Line type="monotone" dataKey="accuracy" stroke="#8b5cf6" name="Accuracy" />
@@ -332,10 +336,13 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                       range={[50, 200]} 
                     />
                     <Tooltip 
-                      formatter={(value, name) => [
-                        `${value}${name === 'Depth' || name === 'Width' ? 'cm' : ''}`, 
-                        name
-                      ]}
+                      formatter={(value, name) => {
+                        // Fix: Check if value is a number before formatting
+                        const formattedValue = typeof value === 'number' && (name === 'Depth' || name === 'Width') 
+                          ? `${value}cm` 
+                          : value;
+                        return [formattedValue, name];
+                      }}
                       contentStyle={{ background: 'white', border: '1px solid #ccc' }}
                       cursor={{ strokeDasharray: '3 3' }}
                     />
