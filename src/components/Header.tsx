@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { currentUser } from '@/data/mockUsers';
 import { AuthModal } from './AuthModal';
-import logo from './logo.png'; // Import the logo
+import logo from './logo.png';
 
 export const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(true);

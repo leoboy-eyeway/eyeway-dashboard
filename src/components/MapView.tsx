@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Pothole } from '@/types';
@@ -36,8 +35,6 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
 
     // Add scale control
     L.control.scale().addTo(mapRef.current);
-
-    // Removed toast notification for map initialization
 
     setIsLoading(false);
 
