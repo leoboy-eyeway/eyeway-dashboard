@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { currentUser } from '@/data/mockUsers';
 import { AuthModal } from './AuthModal';
+import logo from './logo.png'; // Import the logo
 
 export const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -29,14 +29,11 @@ export const Header = () => {
     <header className="bg-background border-b border-border sticky top-0 z-10">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-pothole-500 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M8 15h8" />
-              <path d="M8.5 10.5h7" />
-              <path d="M11 8v8" />
-            </svg>
-          </div>
+          <img 
+            src={logo} 
+            alt="Eyeway Logo" 
+            className="w-8 h-8 object-contain"
+          />
           <h1 className="text-xl md:text-2xl font-bold">Eyeway 2.0 Pothole Tracking Dashboard</h1>
         </div>
         
