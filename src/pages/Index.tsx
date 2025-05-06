@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import PotholeFilters from '@/components/PotholeFilters';
 import MapView from '@/components/MapView';
 import PotholeDetails from '@/components/PotholeDetails';
 import DataVisualization from '@/components/DataVisualization';
+import DocumentManagement from '@/components/DocumentManagement';
 import { Pothole, Status, Severity, GaussianSplattingData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -238,6 +240,10 @@ const Index = () => {
         
         <div className="mt-8 w-full">
           <DataVisualization potholes={potholes} />
+        </div>
+
+        <div className="mt-8 w-full">
+          <DocumentManagement />
         </div>
       </main>
       
