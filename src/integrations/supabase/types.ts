@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      pothole_documents: {
+        Row: {
+          assigned_to: string
+          created_at: string
+          due_date: string
+          id: string
+          pothole_id: string | null
+          priority: string
+          status: string
+          title: string
+          type: string
+        }
+        Insert: {
+          assigned_to: string
+          created_at?: string
+          due_date: string
+          id?: string
+          pothole_id?: string | null
+          priority: string
+          status: string
+          title: string
+          type: string
+        }
+        Update: {
+          assigned_to?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          pothole_id?: string | null
+          priority?: string
+          status?: string
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pothole_documents_pothole_id_fkey"
+            columns: ["pothole_id"]
+            isOneToOne: false
+            referencedRelation: "potholes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       potholes: {
         Row: {
           completion_date: string | null
