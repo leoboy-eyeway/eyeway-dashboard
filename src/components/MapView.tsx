@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Pothole } from '@/types';
@@ -82,17 +83,17 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
           onSelectPothole(pothole);
           
           // Show a popup with basic severity information
-          const lidarInfo = pothole.lidarData ? 
-            `<strong>LiDAR Data Available</strong><br>` +
+          const pointCloudInfo = pothole.lidarData ? 
+            `<strong>3D Data Available</strong><br>` +
             `Depth: ${pothole.lidarData.surface?.depth}cm<br>` +
             `Width: ${pothole.lidarData.surface?.width}cm<br>` 
-            : 'No LiDAR data available';
+            : 'No 3D data available';
             
           marker.bindPopup(
             `<div class="text-sm">
               <strong>Pothole #${pothole.id}</strong><br>
               Severity: <span class="font-bold">${pothole.severity.toUpperCase()}</span><br>
-              ${lidarInfo}
+              ${pointCloudInfo}
             </div>`
           ).openPopup();
         });

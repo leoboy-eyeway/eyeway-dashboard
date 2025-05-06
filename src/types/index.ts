@@ -2,7 +2,7 @@
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 export type Status = 'reported' | 'inspected' | 'scheduled' | 'in-progress' | 'completed';
 
-export interface LidarData {
+export interface GaussianSplattingData {
   pointCloud?: {
     density: number;
     points: number;
@@ -17,6 +17,10 @@ export interface LidarData {
     confidence: number;
     model: string;
     scan_date: string;
+  };
+  gaussianData?: {
+    url: string;
+    pointSize: number;
   };
 }
 
@@ -36,7 +40,7 @@ export interface Pothole {
   images: string[];
   description?: string;
   reportedBy?: string;
-  lidarData?: LidarData;
+  lidarData?: GaussianSplattingData;
 }
 
 export interface User {

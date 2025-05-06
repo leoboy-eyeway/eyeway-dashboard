@@ -35,7 +35,7 @@ export const Header = () => {
             alt="Eyeway Logo" 
             className="w-8 h-8 object-contain"
           />
-          <h1 className="text-xl md:text-2xl font-bold">Eyeway 2.0 Pothole Tracking Dashboard</h1>
+          <h1 className="text-xl md:text-2xl font-bold">Eyeway 2.0</h1>
         </div>
         
         <div className="flex items-center space-x-4">

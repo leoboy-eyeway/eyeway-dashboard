@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Pothole } from '@/types';
 import { format } from 'date-fns';
+import GaussianSplattingViewer from './GaussianSplattingViewer';
 
 interface PotholeDetailsProps {
   pothole: Pothole | null;
@@ -103,76 +104,77 @@ export const PotholeDetails = ({
           </p>
         </div>
         
-        {/* LiDAR Data Section */}
+        {/* Gaussian Splatting 3D Visualization */}
         {pothole.lidarData && (
           <>
             <Separator />
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-2">LiDAR Data</h4>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">3D Visualization</h4>
+              <GaussianSplattingViewer data={pothole.lidarData} />
+            </div>
+            
+            <div className="bg-gray-50 p-3 rounded-md border border-gray-200 space-y-3">
+              {pothole.lidarData.pointCloud && (
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-700">Point Cloud</h5>
+                  <div className="grid grid-cols-2 gap-2 mt-1">
+                    <div>
+                      <span className="text-xs text-gray-500">Density</span>
+                      <p className="text-sm font-medium">{pothole.lidarData.pointCloud.density} pts/m²</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Points</span>
+                      <p className="text-sm font-medium">{pothole.lidarData.pointCloud.points.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Accuracy</span>
+                      <p className="text-sm font-medium">{(pothole.lidarData.pointCloud.accuracy * 100).toFixed(1)}%</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               
-              <div className="bg-gray-50 p-3 rounded-md border border-gray-200 space-y-3">
-                {pothole.lidarData.pointCloud && (
-                  <div>
-                    <h5 className="text-xs font-semibold text-gray-700">Point Cloud</h5>
-                    <div className="grid grid-cols-2 gap-2 mt-1">
-                      <div>
-                        <span className="text-xs text-gray-500">Density</span>
-                        <p className="text-sm font-medium">{pothole.lidarData.pointCloud.density} pts/m²</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Points</span>
-                        <p className="text-sm font-medium">{pothole.lidarData.pointCloud.points.toLocaleString()}</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Accuracy</span>
-                        <p className="text-sm font-medium">{(pothole.lidarData.pointCloud.accuracy * 100).toFixed(1)}%</p>
-                      </div>
+              {pothole.lidarData.surface && (
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-700">Surface Analysis</h5>
+                  <div className="grid grid-cols-2 gap-2 mt-1">
+                    <div>
+                      <span className="text-xs text-gray-500">Depth</span>
+                      <p className="text-sm font-medium">{pothole.lidarData.surface.depth} cm</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Width</span>
+                      <p className="text-sm font-medium">{pothole.lidarData.surface.width} cm</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Area</span>
+                      <p className="text-sm font-medium">{pothole.lidarData.surface.area} m²</p>
                     </div>
                   </div>
-                )}
-                
-                {pothole.lidarData.surface && (
-                  <div>
-                    <h5 className="text-xs font-semibold text-gray-700">Surface Analysis</h5>
-                    <div className="grid grid-cols-2 gap-2 mt-1">
-                      <div>
-                        <span className="text-xs text-gray-500">Depth</span>
-                        <p className="text-sm font-medium">{pothole.lidarData.surface.depth} cm</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Width</span>
-                        <p className="text-sm font-medium">{pothole.lidarData.surface.width} cm</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Area</span>
-                        <p className="text-sm font-medium">{pothole.lidarData.surface.area} m²</p>
-                      </div>
+                </div>
+              )}
+              
+              {pothole.lidarData.classification && (
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-700">Classification</h5>
+                  <div className="grid grid-cols-2 gap-2 mt-1">
+                    <div>
+                      <span className="text-xs text-gray-500">Confidence</span>
+                      <p className="text-sm font-medium">{pothole.lidarData.classification.confidence}%</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Model</span>
+                      <p className="text-sm font-medium">{pothole.lidarData.classification.model}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-500">Scan Date</span>
+                      <p className="text-sm font-medium">
+                        {formatDate(pothole.lidarData.classification.scan_date)}
+                      </p>
                     </div>
                   </div>
-                )}
-                
-                {pothole.lidarData.classification && (
-                  <div>
-                    <h5 className="text-xs font-semibold text-gray-700">Classification</h5>
-                    <div className="grid grid-cols-2 gap-2 mt-1">
-                      <div>
-                        <span className="text-xs text-gray-500">Confidence</span>
-                        <p className="text-sm font-medium">{pothole.lidarData.classification.confidence}%</p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-gray-500">Model</span>
-                        <p className="text-sm font-medium">{pothole.lidarData.classification.model}</p>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-xs text-gray-500">Scan Date</span>
-                        <p className="text-sm font-medium">
-                          {formatDate(pothole.lidarData.classification.scan_date)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </>
         )}
