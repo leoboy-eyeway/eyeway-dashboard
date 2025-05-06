@@ -97,6 +97,10 @@ const MeasurementHelpers = ({ data }: { data?: GaussianSplattingData }) => {
   const depth = data?.surface?.depth ? data.surface.depth / 100 : 0.2;
   const boxRef = useRef<THREE.Mesh>(null);
   
+  // Create position arrays for the lines
+  const widthLinePositions = new Float32Array([-width/2, 0, 0, width/2, 0, 0]);
+  const depthLinePositions = new Float32Array([0, 0, 0, 0, -depth, 0]);
+  
   return (
     <>
       <mesh 
@@ -109,31 +113,32 @@ const MeasurementHelpers = ({ data }: { data?: GaussianSplattingData }) => {
         <meshBasicMaterial wireframe />
       </mesh>
       
-      {/* Dimension lines with labels */}
-      <group position={[0, 0, 0]}>
-        {/* Width measurement */}
-        <line>
+      {/* Width measurement line (red) */}
+      <group>
+        <mesh position={[0, 0, 0]}>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
-              array={new Float32Array([-width/2, 0, 0, width/2, 0, 0])}
+              array={widthLinePositions}
               itemSize={3}
             />
           </bufferGeometry>
           <lineBasicMaterial color="red" />
-        </line>
-        
-        {/* Depth measurement */}
-        <line>
+        </mesh>
+      </group>
+      
+      {/* Depth measurement line (green) */}
+      <group>
+        <mesh position={[0, 0, 0]}>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
-              array={new Float32Array([0, 0, 0, 0, -depth, 0])}
+              array={depthLinePositions}
               itemSize={3}
             />
           </bufferGeometry>
           <lineBasicMaterial color="green" />
-        </line>
+        </mesh>
       </group>
     </>
   );
