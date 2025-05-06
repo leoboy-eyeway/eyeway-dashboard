@@ -1,44 +1,181 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckIcon, ClockIcon } from "lucide-react";
+import { CheckIcon, ClockIcon, AlertTriangle, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
 
-// Types for document section
-interface DocumentSection {
+// Types for management documents
+interface ManagementDocument {
   id: string;
   title: string;
-  type: 'Cover page' | 'Table of contents' | 'Narrative';
-  status: 'Done' | 'In Process';
-  target: number;
-  limit: number;
+  type: 'Inspection' | 'Repair Plan' | 'Budget Allocation' | 'Crew Assignment' | 'Completion Report';
+  status: 'Pending' | 'In Progress' | 'Completed';
+  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  dueDate: string;
+  assignedTo: string;
 }
 
 interface DocumentManagementProps {
   className?: string;
 }
 
-const documentSections: DocumentSection[] = [
-  { id: '1', title: 'Cover page', type: 'Cover page', status: 'In Process', target: 18, limit: 5 },
-  { id: '2', title: 'Table of contents', type: 'Table of contents', status: 'Done', target: 29, limit: 24 },
-  { id: '3', title: 'Executive summary', type: 'Narrative', status: 'Done', target: 10, limit: 13 },
-  { id: '4', title: 'Technical approach', type: 'Narrative', status: 'Done', target: 27, limit: 23 },
-  { id: '5', title: 'Design', type: 'Narrative', status: 'In Process', target: 2, limit: 16 },
-  { id: '6', title: 'Capabilities', type: 'Narrative', status: 'In Process', target: 20, limit: 8 },
-  { id: '7', title: 'Integration with existing systems', type: 'Narrative', status: 'In Process', target: 19, limit: 21 },
-  { id: '8', title: 'Innovation and Advantages', type: 'Narrative', status: 'Done', target: 25, limit: 26 },
+const managementDocuments: ManagementDocument[] = [
+  { id: '1', title: 'Downtown district potholes inspection', type: 'Inspection', status: 'In Progress', priority: 'High', dueDate: '2025-05-10', assignedTo: 'John Smith' },
+  { id: '2', title: 'Highway 101 repair planning', type: 'Repair Plan', status: 'Completed', priority: 'Critical', dueDate: '2025-05-05', assignedTo: 'Emma Johnson' },
+  { id: '3', title: 'Q2 emergency repairs budget', type: 'Budget Allocation', status: 'Completed', priority: 'Medium', dueDate: '2025-05-01', assignedTo: 'Michael Chen' },
+  { id: '4', title: 'Residential area assessment', type: 'Inspection', status: 'Pending', priority: 'Low', dueDate: '2025-05-15', assignedTo: 'Sarah Williams' },
+  { id: '5', title: 'City center crew assignments', type: 'Crew Assignment', status: 'In Progress', priority: 'High', dueDate: '2025-05-08', assignedTo: 'Robert Taylor' },
+  { id: '6', title: 'West side completion verification', type: 'Completion Report', status: 'Pending', priority: 'Medium', dueDate: '2025-05-20', assignedTo: 'Lisa Anderson' },
+  { id: '7', title: 'Bridge approach emergency repair', type: 'Repair Plan', status: 'In Progress', priority: 'Critical', dueDate: '2025-05-06', assignedTo: 'James Wilson' },
+  { id: '8', title: 'Industrial zone assessment', type: 'Inspection', status: 'Completed', priority: 'High', dueDate: '2025-04-29', assignedTo: 'Jennifer Garcia' },
 ];
 
 export const DocumentManagement: React.FC<DocumentManagementProps> = ({ className = "" }) => {
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const filteredDocuments = useMemo(() => {
+    return managementDocuments.filter(doc => {
+      const matchesStatus = statusFilter === 'all' || doc.status === statusFilter;
+      const matchesType = typeFilter === 'all' || doc.type === typeFilter;
+      const matchesPriority = priorityFilter === 'all' || doc.priority === priorityFilter;
+      return matchesStatus && matchesType && matchesPriority;
+    });
+  }, [statusFilter, typeFilter, priorityFilter]);
+
+  const getPriorityBadge = (priority: ManagementDocument['priority']) => {
+    switch (priority) {
+      case 'Low':
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Low</Badge>;
+      case 'Medium':
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Medium</Badge>;
+      case 'High':
+        return <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">High</Badge>;
+      case 'Critical':
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Critical</Badge>;
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
+    }
+  };
+
+  const getStatusBadge = (status: ManagementDocument['status']) => {
+    switch (status) {
+      case 'Pending':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800">
+            <AlertTriangle className="h-3 w-3" />
+            Pending
+          </span>
+        );
+      case 'In Progress':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
+            <ClockIcon className="h-3 w-3" />
+            In Progress
+          </span>
+        );
+      case 'Completed':
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
+            <CheckIcon className="h-3 w-3" />
+            Completed
+          </span>
+        );
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
+    }
+  };
+
   return (
     <Card className={`border border-gray-200 shadow-sm ${className}`}>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold">Document Management</CardTitle>
+          <CardTitle className="text-lg font-bold">Pothole Management Documents</CardTitle>
           <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="h-4 w-4" />
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </Button>
             <span className="text-xs text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</span>
           </div>
         </div>
+        
+        {showFilters && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block text-gray-700">Status</label>
+              <Select 
+                value={statusFilter} 
+                onValueChange={setStatusFilter}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-1 block text-gray-700">Document Type</label>
+              <Select 
+                value={typeFilter} 
+                onValueChange={setTypeFilter}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Filter by type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Inspection">Inspection</SelectItem>
+                  <SelectItem value="Repair Plan">Repair Plan</SelectItem>
+                  <SelectItem value="Budget Allocation">Budget Allocation</SelectItem>
+                  <SelectItem value="Crew Assignment">Crew Assignment</SelectItem>
+                  <SelectItem value="Completion Report">Completion Report</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-1 block text-gray-700">Priority</label>
+              <Select 
+                value={priorityFilter} 
+                onValueChange={setPriorityFilter}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Filter by priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priorities</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent>
@@ -49,42 +186,32 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
                 <TableHead className="w-8">
                   <span className="sr-only">Selection</span>
                 </TableHead>
-                <TableHead>Header</TableHead>
-                <TableHead>Section Type</TableHead>
+                <TableHead>Document Title</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Target</TableHead>
-                <TableHead className="text-right">Limit</TableHead>
+                <TableHead>Priority</TableHead>
+                <TableHead>Due Date</TableHead>
+                <TableHead>Assigned To</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {documentSections.map((section) => (
-                <TableRow key={section.id} className="hover:bg-muted/30">
+              {filteredDocuments.map((doc) => (
+                <TableRow key={doc.id} className="hover:bg-muted/30">
                   <TableCell className="p-2">
                     <div className="flex items-center justify-center">
                       <div className="h-4 w-4 rounded border border-gray-300"></div>
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{section.title}</TableCell>
+                  <TableCell className="font-medium">{doc.title}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-800">
-                      {section.type}
+                      {doc.type}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    {section.status === 'Done' ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
-                        <CheckIcon className="h-3 w-3" />
-                        Done
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
-                        <ClockIcon className="h-3 w-3" />
-                        In Process
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">{section.target}</TableCell>
-                  <TableCell className="text-right">{section.limit}</TableCell>
+                  <TableCell>{getStatusBadge(doc.status)}</TableCell>
+                  <TableCell>{getPriorityBadge(doc.priority)}</TableCell>
+                  <TableCell>{new Date(doc.dueDate).toLocaleDateString()}</TableCell>
+                  <TableCell>{doc.assignedTo}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
