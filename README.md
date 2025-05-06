@@ -1,73 +1,57 @@
-# Welcome to your Lovable project
+# Eyeway 2.0
 
-## Project info
+## Pothole Management System
 
-**URL**: https://lovable.dev/projects/62e35d7a-a56d-4fad-a791-07ae00e68743
+Eyeway 2.0 is a web-based application designed to monitor, track, and manage potholes in Iligan City, Philippines. The system allows users to visualize pothole locations on an interactive map with severity-based classification.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Interactive Map**: Displays pothole locations throughout Iligan City using OpenStreetMap
+- **Severity Classification**: Potholes are categorized into four severity levels:
+  - Low (Green)
+  - Medium (Yellow)
+  - High (Orange)
+  - Critical (Red)
+- **Filtering Capabilities**: Filter potholes by:
+  - Severity level
+  - Status
+- **Zoom Controls**: Easily zoom in/out to focus on specific areas
+- **Real-time Updates**: Shows current status of reported potholes
 
-**Use Lovable**
+## Technical Implementation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/62e35d7a-a56d-4fad-a791-07ae00e68743) and start prompting.
+- Built using web technologies (HTML, CSS, JavaScript)
+- Utilizes Leaflet.js for map rendering
+- Integrates with OpenStreetMap for map data
+- Responsive design for various device compatibility
 
-Changes made via Lovable will be committed automatically to this repo.
+## Installation
 
-**Use your preferred IDE**
+1. Clone the repository
+2. Install dependencies using `npm install`
+3. Configure your environment variables
+4. Run the application using `npm start`
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Usage
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Access the web interface
+2. Use the filter options to display potholes based on severity or status
+3. Click on pothole markers for detailed information
+4. Use the zoom controls to navigate the map
 
-Follow these steps:
+## Contributing
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Contributions are welcome! Please follow these steps:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request with your changes
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## License
 
-# Step 3: Install the necessary dependencies.
-npm i
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Acknowledgments
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/62e35d7a-a56d-4fad-a791-07ae00e68743) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- OpenStreetMap contributors for map data
+- City of Iligan for collaboration and data
+- All contributors and testers of the application
