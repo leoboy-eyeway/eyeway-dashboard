@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useHelper, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { GaussianSplattingData } from '@/types';
 
@@ -73,13 +73,11 @@ const MockPointCloud = ({ data }: { data?: GaussianSplattingData }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={positions.length / 3}
           array={positions}
           itemSize={3}
         />
         <bufferAttribute
           attach="attributes-color"
-          count={colors.length / 3}
           array={colors}
           itemSize={3}
         />
@@ -97,11 +95,7 @@ const MockPointCloud = ({ data }: { data?: GaussianSplattingData }) => {
 const MeasurementHelpers = ({ data }: { data?: GaussianSplattingData }) => {
   const width = data?.surface?.width ? data.surface.width / 100 : 0.8;
   const depth = data?.surface?.depth ? data.surface.depth / 100 : 0.2;
-  const boxHelperRef = useRef<THREE.BoxHelper>(null);
   const boxRef = useRef<THREE.Mesh>(null);
-  
-  // Box representing the pothole dimensions
-  useHelper(boxRef, THREE.BoxHelper, 'cyan');
   
   return (
     <>
@@ -119,28 +113,26 @@ const MeasurementHelpers = ({ data }: { data?: GaussianSplattingData }) => {
       <group position={[0, 0, 0]}>
         {/* Width measurement */}
         <line>
-          <bufferGeometry attach="geometry">
-            <float32BufferAttribute 
-              attach="attributes-position" 
-              array={new Float32Array([-width/2, 0, 0, width/2, 0, 0])} 
-              count={2} 
-              itemSize={3} 
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              array={new Float32Array([-width/2, 0, 0, width/2, 0, 0])}
+              itemSize={3}
             />
           </bufferGeometry>
-          <lineBasicMaterial attach="material" color="red" />
+          <lineBasicMaterial color="red" />
         </line>
         
         {/* Depth measurement */}
         <line>
-          <bufferGeometry attach="geometry">
-            <float32BufferAttribute 
-              attach="attributes-position" 
-              array={new Float32Array([0, 0, 0, 0, -depth, 0])} 
-              count={2} 
-              itemSize={3} 
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              array={new Float32Array([0, 0, 0, 0, -depth, 0])}
+              itemSize={3}
             />
           </bufferGeometry>
-          <lineBasicMaterial attach="material" color="green" />
+          <lineBasicMaterial color="green" />
         </line>
       </group>
     </>

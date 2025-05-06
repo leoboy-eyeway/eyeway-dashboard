@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import PotholeFilters from '@/components/PotholeFilters';
 import MapView from '@/components/MapView';
 import PotholeDetails from '@/components/PotholeDetails';
 import DataVisualization from '@/components/DataVisualization';
-import { Pothole, Status, Severity, LidarData } from '@/types';
+import { Pothole, Status, Severity, GaussianSplattingData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -35,7 +34,7 @@ const Index = () => {
           // Transform Supabase data to match our Pothole type
           const transformedData: Pothole[] = data.map(item => {
             // Parse lidarData as our LidarData type
-            let parsedLidarData: LidarData | undefined = undefined;
+            let parsedLidarData: GaussianSplattingData | undefined = undefined;
             
             if (item.lidar_data) {
               // Cast the item.lidar_data to a more specific type to work with it
