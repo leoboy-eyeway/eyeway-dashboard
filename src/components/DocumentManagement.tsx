@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Database } from '@/integrations/supabase/types';
 
 // Types for management documents
 interface PotholeDocument {
@@ -50,7 +51,7 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
           .from('pothole_documents')
           .select(`
             *,
-            potholes(pothole_number)
+            potholes (pothole_number)
           `);
 
         if (error) throw error;
@@ -141,7 +142,7 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
   return (
     <Card className={`border border-gray-200 shadow-sm ${className}`}>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <CardTitle className="text-lg font-bold">Pothole Management Documents</CardTitle>
           <div className="flex items-center space-x-2">
             <Button 
@@ -153,12 +154,12 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
               <Filter className="h-4 w-4" />
               {showFilters ? 'Hide Filters' : 'Show Filters'}
             </Button>
-            <span className="text-xs text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</span>
+            <span className="hidden sm:inline text-xs text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</span>
           </div>
         </div>
         
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             <div>
               <label className="text-sm font-medium mb-1 block text-gray-700">Status</label>
               <Select 
@@ -225,19 +226,19 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-8">
+                  <TableHead className="w-8 hidden sm:table-cell">
                     <span className="sr-only">Selection</span>
                   </TableHead>
                   <TableHead>Document Title</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead className="hidden md:table-cell">Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Assigned To</TableHead>
+                  <TableHead className="hidden md:table-cell">Priority</TableHead>
+                  <TableHead className="hidden lg:table-cell">Due Date</TableHead>
+                  <TableHead className="hidden lg:table-cell">Assigned To</TableHead>
                   <TableHead>Pothole ID</TableHead>
                 </TableRow>
               </TableHeader>
@@ -245,21 +246,27 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
                 {filteredDocuments.length > 0 ? (
                   filteredDocuments.map((doc) => (
                     <TableRow key={doc.id} className="hover:bg-muted/30">
-                      <TableCell className="p-2">
+                      <TableCell className="p-2 hidden sm:table-cell">
                         <div className="flex items-center justify-center">
                           <div className="h-4 w-4 rounded border border-gray-300"></div>
                         </div>
                       </TableCell>
-                      <TableCell className="font-medium">{doc.title}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex flex-col">
+                          <span>{doc.title}</span>
+                          <span className="text-xs text-muted-foreground md:hidden">{doc.type}</span>
+                          {!doc.pothole_number && <span className="text-xs text-muted-foreground md:hidden">No Pothole</span>}
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-800">
                           {doc.type}
                         </span>
                       </TableCell>
                       <TableCell>{getStatusBadge(doc.status)}</TableCell>
-                      <TableCell>{getPriorityBadge(doc.priority)}</TableCell>
-                      <TableCell>{new Date(doc.due_date).toLocaleDateString()}</TableCell>
-                      <TableCell>{doc.assigned_to}</TableCell>
+                      <TableCell className="hidden md:table-cell">{getPriorityBadge(doc.priority)}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{new Date(doc.due_date).toLocaleDateString()}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{doc.assigned_to}</TableCell>
                       <TableCell>
                         {doc.pothole_number ? (
                           <Badge variant="outline" className="bg-gray-50"># {doc.pothole_number}</Badge>

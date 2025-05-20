@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import PotholeFilters from '@/components/PotholeFilters';
@@ -8,6 +9,8 @@ import DocumentManagement from '@/components/DocumentManagement';
 import { Pothole, Status, Severity, GaussianSplattingData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { X } from "lucide-react";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Index = () => {
   const [potholes, setPotholes] = useState<Pothole[]>([]);
@@ -18,6 +21,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activePanel, setActivePanel] = useState<'filters' | 'data' | 'documents' | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Fetch potholes from Supabase
   useEffect(() => {
@@ -39,8 +43,7 @@ const Index = () => {
             let parsedLidarData: GaussianSplattingData | undefined = undefined;
             
             if (item.lidar_data) {
-              // Cast the item.lidar_data to a more specific type to work with it
-              const lidarJson = item.lidar_data as Record<string, any>;
+              const lidarJson = item.lidar_data as any;
               
               parsedLidarData = {
                 pointCloud: lidarJson.pointCloud ? {
@@ -197,7 +200,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
       {/* Fullscreen Map */}
       {isLoading ? (
         <div className="fixed inset-0 flex items-center justify-center bg-white z-10">
@@ -211,11 +214,11 @@ const Index = () => {
       )}
       
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white bg-opacity-90 shadow-md">
+      <div className="fixed top-0 left-0 right-0 z-20 bg-white bg-opacity-95 shadow-md">
         <Header />
         
         {/* Control Buttons */}
-        <div className="container mx-auto px-4 py-2 flex space-x-2">
+        <div className="container mx-auto px-4 py-2 flex flex-wrap gap-2">
           <button 
             onClick={() => togglePanel('filters')}
             className={`px-3 py-1 text-sm rounded-md transition-colors ${activePanel === 'filters' ? 'bg-pothole-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
@@ -239,7 +242,7 @@ const Index = () => {
       
       {/* Floating Pothole Details Panel */}
       {selectedPothole && (
-        <div className="fixed top-32 right-4 z-20 w-80 max-h-[calc(100vh-140px)] overflow-auto">
+        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-32 right-4 z-20 w-80'} max-h-[calc(100vh-140px)] overflow-auto`}>
           <PotholeDetails 
             pothole={selectedPothole} 
             onClose={() => setSelectedPothole(null)}
@@ -250,8 +253,15 @@ const Index = () => {
       
       {/* Floating Panels */}
       {activePanel === 'filters' && (
-        <div className="fixed top-32 left-4 z-20 w-80 bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="p-4">
+        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-32 left-4 w-80'} z-20 bg-white rounded-lg shadow-lg border border-gray-200`}>
+          <div className="relative p-4">
+            <button 
+              onClick={() => setActivePanel(null)}
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+              aria-label="Close panel"
+            >
+              <X size={18} />
+            </button>
             <PotholeFilters 
               severity={severityFilter}
               status={statusFilter}
@@ -266,41 +276,37 @@ const Index = () => {
       )}
       
       {activePanel === 'data' && (
-        <div className="fixed top-32 left-4 z-20 w-[calc(100%-2rem)] max-w-3xl max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="p-4">
-            <DataVisualization potholes={potholes} />
+        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-3xl'} z-20 max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200`}>
+          <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
               className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+              aria-label="Close panel"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={18} />
             </button>
+            <DataVisualization potholes={potholes} />
           </div>
         </div>
       )}
       
       {activePanel === 'documents' && (
-        <div className="fixed top-32 left-4 z-20 w-[calc(100%-2rem)] max-w-3xl max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200">
-          <div className="p-4">
-            <DocumentManagement />
+        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-3xl'} z-20 max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200`}>
+          <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
               className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+              aria-label="Close panel"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X size={18} />
             </button>
+            <DocumentManagement />
           </div>
         </div>
       )}
       
       {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white bg-opacity-90 border-t border-gray-200 py-2 z-10">
+      <div className="fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 border-t border-gray-200 py-2 z-20">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Eyeway 2.0. All rights reserved.
         </div>
