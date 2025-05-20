@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import PotholeFilters from '@/components/PotholeFilters';
@@ -212,36 +213,36 @@ const Index = () => {
         />
       )}
       
-      {/* Floating Header with position adjusted for better UX */}
+      {/* Floating Header */}
       <Header />
       
-      {/* Control Buttons - now positioned below the floating header with proper spacing */}
-      <div className="fixed top-16 left-0 right-0 z-20 bg-background/80 backdrop-blur-sm py-2 shadow-sm">
-        <div className="container mx-auto px-4 flex flex-wrap gap-2">
+      {/* Control Buttons - positioned as floating pills below header */}
+      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-20 py-2">
+        <div className="floating-panel px-4 py-2 flex flex-wrap gap-2 rounded-full">
           <button 
             onClick={() => togglePanel('filters')}
-            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${activePanel === 'filters' ? 'bg-pothole-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'filters' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
           >
             Filters
           </button>
           <button 
             onClick={() => togglePanel('data')}
-            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${activePanel === 'data' ? 'bg-pothole-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'data' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
           >
             Data Analysis
           </button>
           <button 
             onClick={() => togglePanel('documents')}
-            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${activePanel === 'documents' ? 'bg-pothole-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+            className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'documents' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
           >
             Documents
           </button>
         </div>
       </div>
       
-      {/* Floating Pothole Details Panel - improved positioning */}
+      {/* Floating Pothole Details Panel */}
       {selectedPothole && (
-        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-28 right-4 z-30 w-96'} max-h-[calc(100vh-140px)] bg-white/95 backdrop-blur-sm rounded-lg shadow-lg overflow-auto transition-all duration-300 ease-in-out animate-fade-in`}>
+        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-32 right-4 z-30 w-96'} max-h-[calc(100vh-140px)] floating-panel overflow-auto transition-all duration-300 ease-in-out animate-fade-in`}>
           <PotholeDetails 
             pothole={selectedPothole} 
             onClose={() => setSelectedPothole(null)}
@@ -250,9 +251,9 @@ const Index = () => {
         </div>
       )}
       
-      {/* Floating Panels - improved styling and animations */}
+      {/* Floating Panels */}
       {activePanel === 'filters' && (
-        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-28 left-4 w-96'} z-30 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 animate-fade-in`}>
+        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-32 left-4 w-96'} z-30 floating-panel animate-fade-in float`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
@@ -275,7 +276,7 @@ const Index = () => {
       )}
       
       {activePanel === 'data' && (
-        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-28 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 animate-fade-in`}>
+        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
@@ -290,7 +291,7 @@ const Index = () => {
       )}
       
       {activePanel === 'documents' && (
-        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-28 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 animate-fade-in`}>
+        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
@@ -304,9 +305,9 @@ const Index = () => {
         </div>
       )}
       
-      {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-gray-200 py-2 z-20">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+      {/* Floating Footer */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20 floating-panel py-2 px-4 rounded-full">
+        <div className="text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Eyeway 2.0. All rights reserved.
         </div>
       </div>

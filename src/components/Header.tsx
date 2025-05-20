@@ -27,8 +27,8 @@ export const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-full bg-white/90 backdrop-blur-md shadow-lg border border-gray-100">
+      <div className="px-4 py-2 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <img 
             src={logo} 
@@ -39,6 +39,9 @@ export const Header = () => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <div className="hidden md:flex">
+            <span className="text-sm font-medium text-gray-500 mr-4">Total Reports: 1,750</span>
+          </div>
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -78,6 +78,15 @@
   transition: all 0.3s ease-in-out;
 }
 
+/* Floating panel styles */
+.floating-panel {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
 /* Mobile-specific styling */
 @media (max-width: 768px) {
   .panel-mobile {
@@ -85,4 +94,21 @@
     margin-left: 1rem;
     margin-right: 1rem;
   }
+}
+
+/* Animation for floating elements */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
 }
