@@ -16,6 +16,7 @@ const Index = () => {
   const [severityFilter, setSeverityFilter] = useState<Severity | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [activePanel, setActivePanel] = useState<'filters' | 'data' | 'documents' | null>(null);
   const { toast } = useToast();
 
   // Fetch potholes from Supabase
@@ -191,66 +192,119 @@ const Index = () => {
     setStatusFilter('all');
   };
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      
-      <main className="flex-grow container mx-auto px-4 py-6 space-y-6 max-w-7xl">
-        {/* Removed redundant title here */}
-        
-        <PotholeFilters 
-          severity={severityFilter}
-          status={statusFilter}
-          onSeverityChange={setSeverityFilter}
-          onStatusChange={setStatusFilter}
-          onClearFilters={handleClearFilters}
-          totalPotholes={potholes.length}
-          filteredCount={filteredPotholes.length}
-        />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {isLoading ? (
-              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex items-center justify-center h-[600px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pothole-500"></div>
-              </div>
-            ) : (
-              <MapView 
-                potholes={filteredPotholes} 
-                onSelectPothole={handleSelectPothole} 
-              />
-            )}
-          </div>
-          
-          <div className="space-y-6">
-            {selectedPothole ? (
-              <PotholeDetails 
-                pothole={selectedPothole} 
-                onClose={() => setSelectedPothole(null)}
-                onUpdateStatus={handleUpdatePotholeStatus}
-              />
-            ) : (
-              <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 flex items-center justify-center h-[200px]">
-                <p className="text-gray-500">Select a pothole on the map to view details</p>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        <div className="mt-8 w-full">
-          <DataVisualization potholes={potholes} />
-        </div>
+  const togglePanel = (panel: 'filters' | 'data' | 'documents') => {
+    setActivePanel(activePanel === panel ? null : panel);
+  };
 
-        <div className="mt-8 w-full">
-          <DocumentManagement />
+  return (
+    <div className="min-h-screen">
+      {/* Fullscreen Map */}
+      {isLoading ? (
+        <div className="fixed inset-0 flex items-center justify-center bg-white z-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pothole-500"></div>
         </div>
-      </main>
+      ) : (
+        <MapView 
+          potholes={filteredPotholes} 
+          onSelectPothole={handleSelectPothole} 
+        />
+      )}
       
-      <footer className="bg-white border-t border-gray-200 py-4">
+      {/* Fixed Header */}
+      <div className="fixed top-0 left-0 right-0 z-10 bg-white bg-opacity-90 shadow-md">
+        <Header />
+        
+        {/* Control Buttons */}
+        <div className="container mx-auto px-4 py-2 flex space-x-2">
+          <button 
+            onClick={() => togglePanel('filters')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${activePanel === 'filters' ? 'bg-pothole-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+          >
+            Filters
+          </button>
+          <button 
+            onClick={() => togglePanel('data')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${activePanel === 'data' ? 'bg-pothole-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+          >
+            Data Analysis
+          </button>
+          <button 
+            onClick={() => togglePanel('documents')}
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${activePanel === 'documents' ? 'bg-pothole-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+          >
+            Documents
+          </button>
+        </div>
+      </div>
+      
+      {/* Floating Pothole Details Panel */}
+      {selectedPothole && (
+        <div className="fixed top-32 right-4 z-20 w-80 max-h-[calc(100vh-140px)] overflow-auto">
+          <PotholeDetails 
+            pothole={selectedPothole} 
+            onClose={() => setSelectedPothole(null)}
+            onUpdateStatus={handleUpdatePotholeStatus}
+          />
+        </div>
+      )}
+      
+      {/* Floating Panels */}
+      {activePanel === 'filters' && (
+        <div className="fixed top-32 left-4 z-20 w-80 bg-white rounded-lg shadow-lg border border-gray-200">
+          <div className="p-4">
+            <PotholeFilters 
+              severity={severityFilter}
+              status={statusFilter}
+              onSeverityChange={setSeverityFilter}
+              onStatusChange={setStatusFilter}
+              onClearFilters={handleClearFilters}
+              totalPotholes={potholes.length}
+              filteredCount={filteredPotholes.length}
+            />
+          </div>
+        </div>
+      )}
+      
+      {activePanel === 'data' && (
+        <div className="fixed top-32 left-4 z-20 w-[calc(100%-2rem)] max-w-3xl max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200">
+          <div className="p-4">
+            <DataVisualization potholes={potholes} />
+            <button 
+              onClick={() => setActivePanel(null)}
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {activePanel === 'documents' && (
+        <div className="fixed top-32 left-4 z-20 w-[calc(100%-2rem)] max-w-3xl max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200">
+          <div className="p-4">
+            <DocumentManagement />
+            <button 
+              onClick={() => setActivePanel(null)}
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white bg-opacity-90 border-t border-gray-200 py-2 z-10">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Eyeway 2.0. All rights reserved.
         </div>
-      </footer>
+      </div>
     </div>
   );
 };
