@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import PotholeFilters from '@/components/PotholeFilters';
@@ -39,7 +38,7 @@ const Index = () => {
         if (data) {
           // Transform Supabase data to match our Pothole type
           const transformedData: Pothole[] = data.map(item => {
-            // Parse lidarData as our LidarData type
+            // Parse lidarData as our GaussianSplattingData type
             let parsedLidarData: GaussianSplattingData | undefined = undefined;
             
             if (item.lidar_data) {
@@ -213,36 +212,36 @@ const Index = () => {
         />
       )}
       
-      {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-20 bg-white bg-opacity-95 shadow-md">
-        <Header />
-        
-        {/* Control Buttons */}
-        <div className="container mx-auto px-4 py-2 flex flex-wrap gap-2">
+      {/* Floating Header with position adjusted for better UX */}
+      <Header />
+      
+      {/* Control Buttons - now positioned below the floating header with proper spacing */}
+      <div className="fixed top-16 left-0 right-0 z-20 bg-background/80 backdrop-blur-sm py-2 shadow-sm">
+        <div className="container mx-auto px-4 flex flex-wrap gap-2">
           <button 
             onClick={() => togglePanel('filters')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activePanel === 'filters' ? 'bg-pothole-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${activePanel === 'filters' ? 'bg-pothole-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
           >
             Filters
           </button>
           <button 
             onClick={() => togglePanel('data')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activePanel === 'data' ? 'bg-pothole-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${activePanel === 'data' ? 'bg-pothole-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
           >
             Data Analysis
           </button>
           <button 
             onClick={() => togglePanel('documents')}
-            className={`px-3 py-1 text-sm rounded-md transition-colors ${activePanel === 'documents' ? 'bg-pothole-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${activePanel === 'documents' ? 'bg-pothole-500 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
           >
             Documents
           </button>
         </div>
       </div>
       
-      {/* Floating Pothole Details Panel */}
+      {/* Floating Pothole Details Panel - improved positioning */}
       {selectedPothole && (
-        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-32 right-4 z-20 w-80'} max-h-[calc(100vh-140px)] overflow-auto`}>
+        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-28 right-4 z-30 w-96'} max-h-[calc(100vh-140px)] bg-white/95 backdrop-blur-sm rounded-lg shadow-lg overflow-auto transition-all duration-300 ease-in-out animate-fade-in`}>
           <PotholeDetails 
             pothole={selectedPothole} 
             onClose={() => setSelectedPothole(null)}
@@ -251,13 +250,13 @@ const Index = () => {
         </div>
       )}
       
-      {/* Floating Panels */}
+      {/* Floating Panels - improved styling and animations */}
       {activePanel === 'filters' && (
-        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-32 left-4 w-80'} z-20 bg-white rounded-lg shadow-lg border border-gray-200`}>
+        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-28 left-4 w-96'} z-30 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 animate-fade-in`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
-              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
               aria-label="Close panel"
             >
               <X size={18} />
@@ -276,11 +275,11 @@ const Index = () => {
       )}
       
       {activePanel === 'data' && (
-        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-3xl'} z-20 max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200`}>
+        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-28 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 animate-fade-in`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
-              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
               aria-label="Close panel"
             >
               <X size={18} />
@@ -291,11 +290,11 @@ const Index = () => {
       )}
       
       {activePanel === 'documents' && (
-        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-3xl'} z-20 max-h-[calc(100vh-140px)] overflow-auto bg-white rounded-lg shadow-lg border border-gray-200`}>
+        <div className={`fixed ${isMobile ? 'top-28 left-4 right-4' : 'top-28 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 animate-fade-in`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
-              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200"
+              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
               aria-label="Close panel"
             >
               <X size={18} />
@@ -306,7 +305,7 @@ const Index = () => {
       )}
       
       {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white bg-opacity-95 border-t border-gray-200 py-2 z-20">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-gray-200 py-2 z-20">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} Eyeway 2.0. All rights reserved.
         </div>
