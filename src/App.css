@@ -112,39 +112,3 @@
 .float {
   animation: float 4s ease-in-out infinite;
 }
-
-/* Fade-in animation */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.3s ease-out forwards;
-}
-
-/* Hide scrollbars but keep functionality */
-.overflow-auto {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.overflow-auto::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.overflow-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.3);
-  border-radius: 3px;
-}
-
-.overflow-auto::-webkit-scrollbar-track {
-  background: transparent;
-}

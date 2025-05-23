@@ -213,11 +213,11 @@ const Index = () => {
         />
       )}
       
-      {/* Floating Header with Integrated Controls */}
-      <Header activePanel={activePanel} togglePanel={togglePanel} />
+      {/* Floating Header */}
+      <Header />
       
-      {/* Mobile-only Control Buttons - visible on smaller screens */}
-      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-20 py-2 md:hidden">
+      {/* Control Buttons - positioned as floating pills below header */}
+      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-20 py-2">
         <div className="floating-panel px-4 py-2 flex flex-wrap gap-2 rounded-full">
           <button 
             onClick={() => togglePanel('filters')}
@@ -229,20 +229,20 @@ const Index = () => {
             onClick={() => togglePanel('data')}
             className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'data' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
           >
-            Data
+            Data Analysis
           </button>
           <button 
             onClick={() => togglePanel('documents')}
             className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'documents' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
           >
-            Docs
+            Documents
           </button>
         </div>
       </div>
       
       {/* Floating Pothole Details Panel */}
       {selectedPothole && (
-        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-24 right-4 z-30 w-96'} max-h-[calc(100vh-140px)] floating-panel overflow-auto transition-all duration-300 ease-in-out animate-fade-in`}>
+        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-32 right-4 z-30 w-96'} max-h-[calc(100vh-140px)] floating-panel overflow-auto transition-all duration-300 ease-in-out animate-fade-in`}>
           <PotholeDetails 
             pothole={selectedPothole} 
             onClose={() => setSelectedPothole(null)}
@@ -253,7 +253,7 @@ const Index = () => {
       
       {/* Floating Panels */}
       {activePanel === 'filters' && (
-        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-24 left-4 w-96'} z-30 floating-panel animate-fade-in float`}>
+        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-32 left-4 w-96'} z-30 floating-panel animate-fade-in float`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
@@ -276,7 +276,7 @@ const Index = () => {
       )}
       
       {activePanel === 'data' && (
-        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-24 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
+        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}
@@ -291,7 +291,7 @@ const Index = () => {
       )}
       
       {activePanel === 'documents' && (
-        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-24 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
+        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-32 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
           <div className="relative p-4">
             <button 
               onClick={() => setActivePanel(null)}

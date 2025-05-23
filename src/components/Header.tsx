@@ -10,18 +10,11 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { currentUser } from '@/data/mockUsers';
 import { AuthModal } from './AuthModal';
 import logo from './logo.png';
 
-export const Header = ({ 
-  activePanel, 
-  togglePanel 
-}: { 
-  activePanel: 'filters' | 'data' | 'documents' | null,
-  togglePanel: (panel: 'filters' | 'data' | 'documents') => void
-}) => {
+export const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -34,51 +27,20 @@ export const Header = ({
   };
 
   return (
-    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-xl bg-white/90 backdrop-blur-md shadow-lg border border-gray-100">
+    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-full bg-white/90 backdrop-blur-md shadow-lg border border-gray-100">
       <div className="px-4 py-2 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center">
-            <img 
-              src={logo} 
-              alt="Eyeway Logo" 
-              className="w-8 h-8 object-contain"
-            />
-            <h1 className="text-xl md:text-2xl font-bold ml-2">Eyeway 2.0</h1>
-          </div>
-          
-          {/* Embedded tabs */}
-          <div className="hidden md:block">
-            <Tabs value={activePanel || ""} className="w-fit">
-              <TabsList>
-                <TabsTrigger 
-                  value="filters" 
-                  onClick={() => togglePanel('filters')}
-                  className={activePanel === 'filters' ? 'bg-pothole-500 text-white' : ''}
-                >
-                  Filters
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="data" 
-                  onClick={() => togglePanel('data')}
-                  className={activePanel === 'data' ? 'bg-pothole-500 text-white' : ''}
-                >
-                  Data Analysis
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="documents" 
-                  onClick={() => togglePanel('documents')}
-                  className={activePanel === 'documents' ? 'bg-pothole-500 text-white' : ''}
-                >
-                  Documents
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+        <div className="flex items-center space-x-2">
+          <img 
+            src={logo} 
+            alt="Eyeway Logo" 
+            className="w-8 h-8 object-contain"
+          />
+          <h1 className="text-xl md:text-2xl font-bold">Eyeway 2.0</h1>
         </div>
         
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center">
-            <span className="text-sm font-medium text-gray-600">Pothole Data: 1,750</span>
+        <div className="flex items-center space-x-4">
+          <div className="hidden md:flex">
+            <span className="text-sm font-medium text-gray-500 mr-4">Total Reports: 1,750</span>
           </div>
           {isAuthenticated ? (
             <DropdownMenu>

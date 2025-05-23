@@ -34,12 +34,8 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(mapRef.current);
 
-    // Move zoom control to bottom right
-    mapRef.current.zoomControl.remove();
-    L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
-
-    // Add scale control to bottom left
-    L.control.scale({ position: 'bottomleft' }).addTo(mapRef.current);
+    // Add scale control
+    L.control.scale().addTo(mapRef.current);
 
     setIsLoading(false);
 
@@ -131,7 +127,7 @@ export const MapView = ({ potholes, onSelectPothole }: MapViewProps) => {
           <div ref={mapContainerRef} className="absolute inset-0"></div>
           
           {/* Map Legend */}
-          <div className="absolute bottom-4 right-20 bg-white p-3 rounded-md shadow-md z-[400] floating-panel">
+          <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-[400]">
             <div className="text-xs font-medium mb-2">Severity</div>
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
