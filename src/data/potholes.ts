@@ -5,9 +5,9 @@ export const potholes: Pothole[] = [
   {
     id: 'ph-001',
     location: {
-      lat: 40.7128,
-      lng: -74.0060,
-      address: '350 5th Ave, New York, NY 10118'
+      lat: 8.2435,
+      lng: 124.2445,
+      address: 'Andres Bonifacio Avenue, Iligan City'
     },
     severity: 'high',
     status: 'reported',
@@ -19,9 +19,9 @@ export const potholes: Pothole[] = [
   {
     id: 'ph-002',
     location: {
-      lat: 40.7082,
-      lng: -73.9982,
-      address: '175 5th Ave, New York, NY 10010'
+      lat: 8.2415,
+      lng: 124.2435,
+      address: 'Andres Bonifacio Avenue, Iligan City'
     },
     severity: 'medium',
     status: 'scheduled',
@@ -34,9 +34,9 @@ export const potholes: Pothole[] = [
   {
     id: 'ph-003',
     location: {
-      lat: 40.7112,
-      lng: -74.0156,
-      address: '55 Water St, New York, NY 10041'
+      lat: 8.2365,
+      lng: 124.2455,
+      address: 'Tibanga Highway, Iligan City'
     },
     severity: 'critical',
     status: 'in-progress',
@@ -49,9 +49,9 @@ export const potholes: Pothole[] = [
   {
     id: 'ph-004',
     location: {
-      lat: 40.7234,
-      lng: -73.9985,
-      address: '405 Lexington Ave, New York, NY 10174'
+      lat: 8.2395,
+      lng: 124.2485,
+      address: 'Quezon Avenue, Del Carmen, Iligan City'
     },
     severity: 'low',
     status: 'completed',
@@ -65,9 +65,9 @@ export const potholes: Pothole[] = [
   {
     id: 'ph-005',
     location: {
-      lat: 40.7580,
-      lng: -73.9855,
-      address: '45 Rockefeller Plaza, New York, NY 10111'
+      lat: 8.2355,
+      lng: 124.2475,
+      address: 'General Aguinaldo Street, Iligan City'
     },
     severity: 'high',
     status: 'inspected',
@@ -79,9 +79,9 @@ export const potholes: Pothole[] = [
   {
     id: 'ph-006',
     location: {
-      lat: 40.7527,
-      lng: -73.9772,
-      address: '230 Park Ave, New York, NY 10169'
+      lat: 8.2325,
+      lng: 124.2520,
+      address: 'Pala Road, Iligan City'
     },
     severity: 'medium',
     status: 'reported',
@@ -89,5 +89,63 @@ export const potholes: Pothole[] = [
     reportDate: '2025-04-20T16:05:00Z',
     images: ['/placeholder.svg'],
     description: 'Pothole near bus stop affecting public transportation'
+  },
+  {
+    id: 'ph-007',
+    location: {
+      lat: 8.2305,
+      lng: 124.2435,
+      address: 'Antonio F. Arce Street, Iligan City'
+    },
+    severity: 'critical',
+    status: 'reported',
+    detectionAccuracy: 0.93,
+    reportDate: '2025-04-21T10:15:00Z',
+    images: ['/placeholder.svg'],
+    description: 'Severe road damage near commercial area'
+  },
+  {
+    id: 'ph-008',
+    location: {
+      lat: 8.2285,
+      lng: 124.2410,
+      address: 'Maharlika Highway, Iligan City'
+    },
+    severity: 'low',
+    status: 'inspected',
+    detectionAccuracy: 0.79,
+    reportDate: '2025-04-19T14:30:00Z',
+    images: ['/placeholder.svg'],
+    description: 'Minor road crack near school zone'
+  },
+  {
+    id: 'ph-009',
+    location: {
+      lat: 8.2340,
+      lng: 124.2495,
+      address: 'Macapagal Avenue, Iligan City'
+    },
+    severity: 'medium',
+    status: 'scheduled',
+    detectionAccuracy: 0.86,
+    reportDate: '2025-04-17T09:45:00Z',
+    scheduledRepairDate: '2025-05-15T08:00:00Z',
+    images: ['/placeholder.svg'],
+    description: 'Road surface deterioration on main highway'
+  },
+  {
+    id: 'ph-010',
+    location: {
+      lat: 8.2380,
+      lng: 124.2425,
+      address: 'Buhanginan Road, Iligan City'
+    },
+    severity: 'high',
+    status: 'in-progress',
+    detectionAccuracy: 0.91,
+    reportDate: '2025-04-16T11:20:00Z',
+    scheduledRepairDate: '2025-04-28T07:00:00Z',
+    images: ['/placeholder.svg'],
+    description: 'Multiple potholes affecting traffic flow'
   }
 ];

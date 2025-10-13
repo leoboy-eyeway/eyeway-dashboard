@@ -32,7 +32,7 @@ export const PotholeFilters = ({
   filteredCount
 }: PotholeFiltersProps) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-4">
+    <div className="bg-white/70 backdrop-blur-xl shadow-xl border border-white/20 backdrop-saturate-150 rounded-lg p-4 mb-4">
       <div className="flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg">Filter Potholes</h3>

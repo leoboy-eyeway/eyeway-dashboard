@@ -26,4 +26,8 @@ export const users: User[] = [
 ];
 
 // For demo purposes, we'll use this as the current logged-in user
-export const currentUser: User = users[0];
+// For demo purposes, we'll use this as the current logged-in user
+export const currentUser: User = {
+  ...users[0],
+  avatar: 'https://rickandmortyapi.com/api/character/avatar/2.jpeg' // Morty Smith
+};

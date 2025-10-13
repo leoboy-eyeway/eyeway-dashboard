@@ -159,14 +159,14 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
   };
 
   return (
-    <Card className={`border border-gray-200 shadow-sm ${className}`}>
-      <CardHeader>
+    <Card className={`bg-white/70 backdrop-blur-xl shadow-xl border border-white/20 backdrop-saturate-150 flex flex-col h-full ${className}`}>
+      <CardHeader className="flex-shrink-0">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <CardTitle className="text-lg font-bold">Pothole Management Documents</CardTitle>
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="flex items-center gap-1"
               onClick={() => setShowFilters(!showFilters)}
             >
@@ -176,13 +176,13 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
             <span className="hidden sm:inline text-xs text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</span>
           </div>
         </div>
-        
+
         {showFilters && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             <div>
               <label className="text-sm font-medium mb-1 block text-gray-700">Status</label>
-              <Select 
-                value={statusFilter} 
+              <Select
+                value={statusFilter}
                 onValueChange={setStatusFilter}
               >
                 <SelectTrigger className="w-full">
@@ -196,11 +196,11 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium mb-1 block text-gray-700">Document Type</label>
-              <Select 
-                value={typeFilter} 
+              <Select
+                value={typeFilter}
                 onValueChange={setTypeFilter}
               >
                 <SelectTrigger className="w-full">
@@ -216,11 +216,11 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <label className="text-sm font-medium mb-1 block text-gray-700">Priority</label>
-              <Select 
-                value={priorityFilter} 
+              <Select
+                value={priorityFilter}
                 onValueChange={setPriorityFilter}
               >
                 <SelectTrigger className="w-full">
@@ -239,13 +239,13 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
         )}
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden p-0">
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-auto h-full">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -260,7 +260,7 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
             >
               <SortableContext items={filteredDocuments.map(doc => doc.id)} strategy={verticalListSortingStrategy}>
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="sticky top-0 bg-white z-10">
                     <TableRow>
                       <TableHead className="w-8">
                         <span className="sr-only">Drag</span>

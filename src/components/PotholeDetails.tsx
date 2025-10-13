@@ -88,11 +88,22 @@ export const PotholeDetails = ({
           </div>
         </div>
         
-        <div>
+        <div className="group cursor-pointer">
           <h4 className="text-sm font-medium text-gray-500 mb-1">Severity</h4>
-          <div className="flex items-center space-x-2">
-            <div className={`w-3 h-3 rounded-full ${getSeverityColor(pothole.severity)}`}></div>
-            <span className="capitalize">{pothole.severity}</span>
+          <div className="flex items-center space-x-2 transition-all duration-300 ease-in-out group-hover:scale-110 group-hover:space-x-3">
+            <div className={`w-3 h-3 rounded-full ${getSeverityColor(pothole.severity)} transition-all duration-300 ease-in-out group-hover:w-5 group-hover:h-5 group-hover:shadow-lg`}></div>
+            <span className="capitalize font-semibold transition-all duration-300 ease-in-out group-hover:text-lg group-hover:font-bold">{pothole.severity}</span>
+          </div>
+          <div className="mt-2 opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:max-h-20">
+            <div className="text-xs text-gray-400 bg-gray-50 p-2 rounded-md border">
+              <div className="flex justify-between items-center">
+                <span>Detection confidence:</span>
+                <span className="font-medium">{Math.round(pothole.detectionAccuracy * 100)}%</span>
+              </div>
+              <div className="text-xs mt-1 text-center">
+                Click to see repair priority details
+              </div>
+            </div>
           </div>
         </div>
 

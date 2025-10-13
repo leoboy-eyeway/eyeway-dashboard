@@ -1,8 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 import PotholeFilters from '@/components/PotholeFilters';
-import MapView from '@/components/MapView';
+import MapboxView, { MapboxViewRef } from '@/components/MapboxView';
 import PotholeDetails from '@/components/PotholeDetails';
 import DataVisualization from '@/components/DataVisualization';
 import DocumentManagement from '@/components/DocumentManagement';
@@ -22,6 +22,8 @@ const Index = () => {
   const [activePanel, setActivePanel] = useState<'filters' | 'data' | 'documents' | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const mapRef = useRef<MapboxViewRef>(null);
+  const [isMap3DMode, setIsMap3DMode] = useState(true); // Default to 3D mode
 
   // Fetch potholes from Supabase
   useEffect(() => {
@@ -195,45 +197,73 @@ const Index = () => {
     setStatusFilter('all');
   };
 
+  const handleToggleViewMode = () => {
+    mapRef.current?.toggleViewMode();
+    // Update local state to reflect the new mode
+    setIsMap3DMode(!isMap3DMode);
+  };
+
   const togglePanel = (panel: 'filters' | 'data' | 'documents') => {
     setActivePanel(activePanel === panel ? null : panel);
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Fullscreen Map */}
       {isLoading ? (
         <div className="fixed inset-0 flex items-center justify-center bg-white z-10">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pothole-500"></div>
         </div>
       ) : (
-        <MapView 
-          potholes={filteredPotholes} 
-          onSelectPothole={handleSelectPothole} 
+        <MapboxView
+          ref={mapRef}
+          potholes={filteredPotholes}
+          onSelectPothole={handleSelectPothole}
         />
       )}
       
       {/* Floating Header with Integrated Controls */}
       <Header activePanel={activePanel} togglePanel={togglePanel} />
       
-      {/* Mobile-only Control Buttons - visible on smaller screens */}
-      <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-20 py-2 md:hidden">
-        <div className="floating-panel px-4 py-2 flex flex-wrap gap-2 rounded-full">
+      {/* Mobile Control Panel - Bottom */}
+      <div className="fixed bottom-4 left-4 z-30 md:hidden flex flex-col gap-2">
+        {/* 3D Mode Button */}
+        <button
+          onClick={handleToggleViewMode}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full font-semibold text-sm shadow-lg transition-all active:scale-95"
+        >
+          {isMap3DMode ? '3D Mode' : '2D Mode'}
+        </button>
+        
+        {/* Control Buttons */}
+        <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-2 flex flex-col gap-1.5">
           <button 
             onClick={() => togglePanel('filters')}
-            className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'filters' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
+            className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
+              activePanel === 'filters' 
+                ? 'bg-pothole-500 text-white shadow-md' 
+                : 'bg-white hover:bg-gray-50'
+            }`}
           >
             Filters
           </button>
           <button 
             onClick={() => togglePanel('data')}
-            className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'data' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
+            className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
+              activePanel === 'data' 
+                ? 'bg-pothole-500 text-white shadow-md' 
+                : 'bg-white hover:bg-gray-50'
+            }`}
           >
             Data
           </button>
           <button 
             onClick={() => togglePanel('documents')}
-            className={`px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${activePanel === 'documents' ? 'bg-pothole-500 text-white' : 'bg-white/80 hover:bg-white'}`}
+            className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
+              activePanel === 'documents' 
+                ? 'bg-pothole-500 text-white shadow-md' 
+                : 'bg-white hover:bg-gray-50'
+            }`}
           >
             Docs
           </button>
@@ -242,75 +272,92 @@ const Index = () => {
       
       {/* Floating Pothole Details Panel */}
       {selectedPothole && (
-        <div className={`fixed ${isMobile ? 'bottom-16 left-4 right-4 top-auto z-30' : 'top-24 right-4 z-30 w-96'} max-h-[calc(100vh-140px)] floating-panel overflow-auto transition-all duration-300 ease-in-out animate-fade-in`}>
-          <PotholeDetails 
-            pothole={selectedPothole} 
-            onClose={() => setSelectedPothole(null)}
-            onUpdateStatus={handleUpdatePotholeStatus}
-          />
-        </div>
-      )}
-      
-      {/* Floating Panels */}
-      {activePanel === 'filters' && (
-        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-24 left-4 w-96'} z-30 floating-panel animate-fade-in float`}>
-          <div className="relative p-4">
-            <button 
-              onClick={() => setActivePanel(null)}
-              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-              aria-label="Close panel"
-            >
-              <X size={18} />
-            </button>
-            <PotholeFilters 
-              severity={severityFilter}
-              status={statusFilter}
-              onSeverityChange={setSeverityFilter}
-              onStatusChange={setStatusFilter}
-              onClearFilters={handleClearFilters}
-              totalPotholes={potholes.length}
-              filteredCount={filteredPotholes.length}
+        <div className={`fixed ${
+          isMobile 
+            ? 'inset-x-4 top-20 bottom-4 z-40 max-h-[calc(100vh-6rem)]' 
+            : 'top-24 right-4 z-30 w-96 max-h-[calc(100vh-8rem)]'
+        } floating-panel overflow-hidden transition-all duration-300 ease-in-out animate-fade-in`}>
+          <div className="h-full overflow-y-auto">
+            <PotholeDetails 
+              pothole={selectedPothole} 
+              onClose={() => setSelectedPothole(null)}
+              onUpdateStatus={handleUpdatePotholeStatus}
             />
           </div>
         </div>
       )}
       
-      {activePanel === 'data' && (
-        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-24 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
-          <div className="relative p-4">
-            <button 
+      {/* Floating Panels */}
+      {activePanel === 'filters' && (
+        <div className={`fixed ${
+          isMobile 
+            ? 'inset-x-4 top-20 bottom-4 z-35' 
+            : 'top-24 left-4 w-96 max-h-[calc(100vh-8rem)]'
+        } floating-panel animate-fade-in overflow-hidden`}>
+          <div className="relative h-full flex flex-col">
+            <button
               onClick={() => setActivePanel(null)}
-              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-20 bg-white shadow-md"
               aria-label="Close panel"
             >
               <X size={18} />
             </button>
-            <DataVisualization potholes={potholes} />
+            <div className="flex-1 overflow-y-auto p-4">
+              <PotholeFilters
+                severity={severityFilter}
+                status={statusFilter}
+                onSeverityChange={setSeverityFilter}
+                onStatusChange={setStatusFilter}
+                onClearFilters={handleClearFilters}
+                totalPotholes={potholes.length}
+                filteredCount={filteredPotholes.length}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activePanel === 'data' && (
+        <div className={`fixed ${
+          isMobile 
+            ? 'inset-x-4 top-20 bottom-4 z-35' 
+            : 'top-24 left-4 right-4 max-w-6xl max-h-[calc(100vh-8rem)]'
+        } floating-panel animate-fade-in overflow-hidden`}>
+          <div className="relative h-full flex flex-col">
+            <button
+              onClick={() => setActivePanel(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-20 bg-white shadow-md"
+              aria-label="Close panel"
+            >
+              <X size={18} />
+            </button>
+            <div className="flex-1 overflow-y-auto p-4">
+              <DataVisualization potholes={potholes} />
+            </div>
           </div>
         </div>
       )}
       
       {activePanel === 'documents' && (
-        <div className={`fixed ${isMobile ? 'top-32 left-4 right-4' : 'top-24 left-4 w-[calc(100%-2rem)] max-w-4xl'} z-30 max-h-[calc(100vh-140px)] overflow-auto floating-panel animate-fade-in float`}>
-          <div className="relative p-4">
-            <button 
+        <div className={`fixed ${
+          isMobile 
+            ? 'inset-x-4 top-20 bottom-4 z-35' 
+            : 'top-24 left-4 right-4 max-w-6xl max-h-[calc(100vh-8rem)]'
+        } floating-panel animate-fade-in overflow-hidden`}>
+          <div className="relative h-full flex flex-col">
+            <button
               onClick={() => setActivePanel(null)}
-              className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors z-20 bg-white shadow-md"
               aria-label="Close panel"
             >
               <X size={18} />
             </button>
-            <DocumentManagement />
+            <div className="flex-1 overflow-y-auto">
+              <DocumentManagement />
+            </div>
           </div>
         </div>
       )}
-      
-      {/* Floating Footer */}
-      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-20 floating-panel py-2 px-4 rounded-full">
-        <div className="text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Eyeway 2.0. All rights reserved.
-        </div>
-      </div>
     </div>
   );
 };

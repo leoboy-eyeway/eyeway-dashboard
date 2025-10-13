@@ -101,3 +101,65 @@
 .mapboxgl-popup-close-button {
   @apply text-foreground p-1;
 }
+
+/* 3D Marker Styles */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+.pothole-marker-3d {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+  z-index: 1;
+}
+
+.pothole-marker-3d:hover {
+  z-index: 10;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.4));
+}
+
+/* Custom Mapbox Controls for 3D */
+.mapboxgl-ctrl-group {
+  @apply rounded-lg shadow-lg;
+}
+
+.mapboxgl-ctrl-compass {
+  @apply rounded-lg;
+}
+
+/* Popup styling for 3D view */
+.pothole-popup .mapboxgl-popup-content {
+  @apply rounded-lg shadow-2xl;
+  min-width: 200px;
+}
+
+.pothole-popup .mapboxgl-popup-tip {
+  border-top-color: white;
+}
+
+/* Floating Panel Styles */
+.floating-panel {
+  @apply bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20;
+}
+
+/* Smooth fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}

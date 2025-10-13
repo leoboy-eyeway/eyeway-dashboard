@@ -129,21 +129,21 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
   const chartHeight = isMobile ? 220 : 240;
   
   return (
-    <Card className="border border-gray-200 shadow-sm">
-      <CardHeader>
+    <Card className="flex flex-col h-full bg-white border-0 shadow-none">
+      <CardHeader className="flex-shrink-0 pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-bold">Pothole Analytics</CardTitle>
+          <CardTitle className="text-lg sm:text-xl font-bold text-gray-900">Pothole Analytics</CardTitle>
           <HoverCard>
             <HoverCardTrigger asChild>
-              <button className="rounded-full p-1 hover:bg-muted">
-                <InfoIcon className="h-4 w-4 text-muted-foreground" />
+              <button className="rounded-full p-1.5 hover:bg-gray-100 transition-colors">
+                <InfoIcon className="h-4 w-4 text-gray-500" />
               </button>
             </HoverCardTrigger>
-            <HoverCardContent className="w-80">
+            <HoverCardContent className="w-72 sm:w-80">
               <div className="space-y-1">
                 <h4 className="text-sm font-medium">About this data</h4>
                 <p className="text-xs text-muted-foreground">
-                  This analytics dashboard shows pothole data collected from LiDAR and computer vision 
+                  This analytics dashboard shows pothole data collected from LiDAR and computer vision
                   systems deployed across the city. Data is updated every 24 hours.
                 </p>
               </div>
@@ -151,75 +151,154 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
           </HoverCard>
         </div>
       </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} mb-4`}>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="severity">By Severity</TabsTrigger>
-            {!isMobile && <TabsTrigger value="status">By Status</TabsTrigger>}
-            {!isMobile && <TabsTrigger value="advanced">Advanced</TabsTrigger>}
+      <CardContent className="flex-1 overflow-hidden pt-0">
+        <Tabs defaultValue="overview" className="w-full h-full flex flex-col">
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} mb-3 sm:mb-4 bg-gray-100`}>
+            <TabsTrigger value="overview" className="text-xs sm:text-sm data-[state=active]:bg-pothole-500 data-[state=active]:text-white">Overview</TabsTrigger>
+            <TabsTrigger value="severity" className="text-xs sm:text-sm data-[state=active]:bg-pothole-500 data-[state=active]:text-white">Severity</TabsTrigger>
+            {!isMobile && <TabsTrigger value="status" className="text-sm data-[state=active]:bg-pothole-500 data-[state=active]:text-white">Status</TabsTrigger>}
+            {!isMobile && <TabsTrigger value="advanced" className="text-sm data-[state=active]:bg-pothole-500 data-[state=active]:text-white">Advanced</TabsTrigger>}
             {isMobile && (
-              <TabsTrigger value="more" className="col-span-2 mt-2">
+              <TabsTrigger value="more" className="col-span-2 mt-2 text-xs sm:text-sm data-[state=active]:bg-pothole-500 data-[state=active]:text-white">
                 More Analytics
               </TabsTrigger>
             )}
           </TabsList>
-          
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Summary cards */}
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Potholes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{potholes.length}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {lidarDataAvailable} with LiDAR data ({((lidarDataAvailable / potholes.length) * 100).toFixed(1)}%)
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Average Metrics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm">
-                    <div>Depth: <span className="font-bold">{averageDepth.toFixed(1)}cm</span></div>
-                    <div>Width: <span className="font-bold">{averageWidth.toFixed(1)}cm</span></div>
-                    <div>Critical cases: <span className="font-bold text-red-500">{severityCounts.critical}</span></div>
-                  </div>
-                </CardContent>
-              </Card>
-            
-              {/* Monthly trend chart */}
-              <div className={`col-span-1 md:col-span-2 h-${isMobile ? '56' : '72'}`}>
-                <Card className="overflow-hidden">
+
+          <TabsContent value="overview" className="flex-1 overflow-y-auto">
+            <div className="space-y-3 sm:space-y-4 pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                {/* Summary cards */}
+                <Card className="bg-gradient-to-br from-pothole-50 to-orange-50 border-pothole-100">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Monthly Trend</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Total Potholes</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-44 md:h-60">
+                    <div className="text-2xl sm:text-3xl font-bold text-pothole-600">{potholes.length}</div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {lidarDataAvailable} with LiDAR data ({((lidarDataAvailable / potholes.length) * 100).toFixed(1)}%)
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-100">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Average Metrics</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xs sm:text-sm space-y-1">
+                      <div>Depth: <span className="font-bold text-blue-600">{averageDepth.toFixed(1)}cm</span></div>
+                      <div>Width: <span className="font-bold text-blue-600">{averageWidth.toFixed(1)}cm</span></div>
+                      <div>Critical cases: <span className="font-bold text-red-500">{severityCounts.critical}</span></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Monthly trend chart */}
+              <Card className="border-gray-200">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Monthly Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-48 sm:h-56 md:h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={monthlyReportData}
+                        margin={isMobile ? { top: 10, right: 10, left: -20, bottom: 20 } : { top: 10, right: 30, left: 0, bottom: 20 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
+                        <YAxis tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
+                        <Tooltip
+                          formatter={(value: any) => {
+                            if (typeof value === 'number') {
+                              return [`${value} potholes`, 'Count'];
+                            }
+                            return [`${value}`, 'Count'];
+                          }}
+                          contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        />
+                        <Area type="monotone" dataKey="count" stroke="#ea580c" fill="#fed7aa" name="Reported" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+
+          <TabsContent value="severity" className="flex-1 overflow-y-auto">
+            <div className="space-y-3 sm:space-y-4 pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Severity Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-56 sm:h-64">
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart
-                          data={monthlyReportData}
-                          margin={isMobile ? { top: 10, right: 10, left: 0, bottom: 20 } : { top: 10, right: 30, left: 0, bottom: 20 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : {}} />
-                          <YAxis tick={isMobile ? { fontSize: 10 } : {}} />
-                          <Tooltip 
+                        <PieChart>
+                          <Pie
+                            data={severityData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            outerRadius={isMobile ? 60 : 75}
+                            fill="#8884d8"
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          >
+                            {severityData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Legend layout={isMobile ? "horizontal" : "vertical"} align={isMobile ? "center" : "right"} verticalAlign={isMobile ? "bottom" : "middle"} wrapperStyle={{ fontSize: isMobile ? '11px' : '12px' }} />
+                          <Tooltip
                             formatter={(value: any) => {
                               if (typeof value === 'number') {
                                 return [`${value} potholes`, 'Count'];
                               }
                               return [`${value}`, 'Count'];
                             }}
-                            contentStyle={{ background: 'white', border: '1px solid #ccc' }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                           />
-                          <Area type="monotone" dataKey="count" stroke="#8b5cf6" fill="#c4b5fd" name="Reported" />
-                        </AreaChart>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Severity Comparison</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-56 sm:h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={severityData}
+                          margin={isMobile ? { top: 10, right: 10, left: -20, bottom: 20 } : { top: 10, right: 30, left: 0, bottom: 20 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
+                          <YAxis tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
+                          <Tooltip
+                            formatter={(value: any) => {
+                              if (typeof value === 'number') {
+                                return [`${value} potholes`, 'Count'];
+                              }
+                              return [`${value}`, 'Count'];
+                            }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                          />
+                          <Bar dataKey="value" fill="#ea580c" name="Count" radius={[8, 8, 0, 0]}>
+                            {severityData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
                       </ResponsiveContainer>
                     </div>
                   </CardContent>
@@ -227,257 +306,17 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
               </div>
             </div>
           </TabsContent>
-          
-          <TabsContent value="severity" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Severity Distribution</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={severityData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          outerRadius={isMobile ? 70 : 80}
-                          fill="#8884d8"
-                          dataKey="value"
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        >
-                          {severityData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Legend layout={isMobile ? "horizontal" : "vertical"} align={isMobile ? "center" : "right"} verticalAlign={isMobile ? "bottom" : "middle"} />
-                        <Tooltip 
-                          formatter={(value: any) => {
-                            if (typeof value === 'number') {
-                              return [`${value} potholes`, 'Count'];
-                            }
-                            return [`${value}`, 'Count'];
-                          }}
-                          contentStyle={{ background: 'white', border: '1px solid #ccc' }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Severity Comparison</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={severityData}
-                        margin={isMobile ? { top: 10, right: 10, left: 0, bottom: 20 } : { top: 10, right: 30, left: 0, bottom: 20 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : {}} />
-                        <YAxis tick={isMobile ? { fontSize: 10 } : {}} />
-                        <Tooltip 
-                          formatter={(value: any) => {
-                            if (typeof value === 'number') {
-                              return [`${value} potholes`, 'Count'];
-                            }
-                            return [`${value}`, 'Count'];
-                          }}
-                          contentStyle={{ background: 'white', border: '1px solid #ccc' }}
-                        />
-                        <Bar dataKey="value" fill="#8b5cf6" name="Count">
-                          {severityData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="status" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Status Distribution</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={statusData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          outerRadius={isMobile ? 70 : 80}
-                          fill="#8884d8"
-                          dataKey="value"
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        >
-                          {statusData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Legend layout={isMobile ? "horizontal" : "vertical"} align={isMobile ? "center" : "right"} verticalAlign={isMobile ? "bottom" : "middle"} />
-                        <Tooltip 
-                          formatter={(value: any) => {
-                            if (typeof value === 'number') {
-                              return [`${value} potholes`, 'Count'];
-                            }
-                            return [`${value}`, 'Count'];
-                          }}
-                          contentStyle={{ background: 'white', border: '1px solid #ccc' }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Status Comparison</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={statusData}
-                        margin={isMobile ? { top: 10, right: 10, left: 0, bottom: 20 } : { top: 10, right: 30, left: 0, bottom: 20 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : {}} />
-                        <YAxis tick={isMobile ? { fontSize: 10 } : {}} />
-                        <Tooltip 
-                          formatter={(value: any) => {
-                            if (typeof value === 'number') {
-                              return [`${value} potholes`, 'Count'];
-                            }
-                            return [`${value}`, 'Count'];
-                          }}
-                          contentStyle={{ background: 'white', border: '1px solid #ccc' }}
-                        />
-                        <Bar dataKey="value" name="Count">
-                          {statusData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="advanced" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Detection accuracy chart */}
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Detection Accuracy by Severity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={accuracyBySeverity}
-                        margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : {}} />
-                        <YAxis domain={[0, 100]} unit="%" tick={isMobile ? { fontSize: 10 } : {}} />
-                        <Tooltip
-                          formatter={(value: any) => {
-                            if (typeof value === 'number') {
-                              return [`${value.toFixed(1)}%`, 'Accuracy'];
-                            }
-                            return [`${value}%`, 'Accuracy'];
-                          }}
-                          contentStyle={{ background: 'white', border: '1px solid #ccc' }}
-                        />
-                        <Line type="monotone" dataKey="accuracy" stroke="#8b5cf6" name="Accuracy" />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Depth vs Width Scatter Plot */}
-              <Card className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Pothole Depth vs Width</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ScatterChart
-                        margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          type="number" 
-                          dataKey="depth" 
-                          name="Depth" 
-                          unit="cm" 
-                          tick={isMobile ? { fontSize: 10 } : {}}
-                        />
-                        <YAxis 
-                          type="number" 
-                          dataKey="width" 
-                          name="Width" 
-                          unit="cm" 
-                          tick={isMobile ? { fontSize: 10 } : {}}
-                        />
-                        <ZAxis 
-                          type="category" 
-                          dataKey="severity" 
-                          name="Severity" 
-                          range={[50, 200]} 
-                        />
-                        <Tooltip 
-                          formatter={(value: any, name: any) => {
-                            if (typeof value === 'number' && (name === 'Depth' || name === 'Width')) {
-                              return [`${value}cm`, name];
-                            }
-                            return [value, name];
-                          }}
-                          contentStyle={{ background: 'white', border: '1px solid #ccc' }}
-                          cursor={{ strokeDasharray: '3 3' }}
-                        />
-                        <Scatter 
-                          name="Potholes" 
-                          data={scatterData} 
-                          fill="#8b5cf6"
-                        />
-                      </ScatterChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          {/* New tab for mobile that combines Status and Advanced */}
-          {isMobile && (
-            <TabsContent value="more" className="space-y-6">
-              <div className="space-y-4">
-                <Card className="overflow-hidden">
+
+
+          <TabsContent value="status" className="flex-1 overflow-y-auto">
+            <div className="space-y-3 sm:space-y-4 pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <Card className="border-gray-200">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Status Distribution</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Status Distribution</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-64">
+                    <div className="h-56 sm:h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -485,7 +324,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                             cx="50%"
                             cy="50%"
                             labelLine={false}
-                            outerRadius={70}
+                            outerRadius={isMobile ? 60 : 75}
                             fill="#8884d8"
                             dataKey="value"
                             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -494,36 +333,78 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))}
                           </Pie>
-                          <Legend layout="horizontal" align="center" verticalAlign="bottom" />
-                          <Tooltip 
+                          <Legend layout={isMobile ? "horizontal" : "vertical"} align={isMobile ? "center" : "right"} verticalAlign={isMobile ? "bottom" : "middle"} wrapperStyle={{ fontSize: isMobile ? '11px' : '12px' }} />
+                          <Tooltip
                             formatter={(value: any) => {
                               if (typeof value === 'number') {
                                 return [`${value} potholes`, 'Count'];
                               }
                               return [`${value}`, 'Count'];
                             }}
-                            contentStyle={{ background: 'white', border: '1px solid #ccc' }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                           />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
                   </CardContent>
                 </Card>
-                
-                <Card className="overflow-hidden">
+
+                <Card className="border-gray-200">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Detection Accuracy</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Status Comparison</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-64">
+                    <div className="h-56 sm:h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={statusData}
+                          margin={isMobile ? { top: 10, right: 10, left: -20, bottom: 20 } : { top: 10, right: 30, left: 0, bottom: 20 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
+                          <YAxis tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
+                          <Tooltip
+                            formatter={(value: any) => {
+                              if (typeof value === 'number') {
+                                return [`${value} potholes`, 'Count'];
+                              }
+                              return [`${value}`, 'Count'];
+                            }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                          />
+                          <Bar dataKey="value" name="Count" radius={[8, 8, 0, 0]}>
+                            {statusData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+
+          <TabsContent value="advanced" className="flex-1 overflow-y-auto">
+            <div className="space-y-3 sm:space-y-4 pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                {/* Detection accuracy chart */}
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Detection Accuracy by Severity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-56 sm:h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart
                           data={accuracyBySeverity}
-                          margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                          margin={isMobile ? { top: 10, right: 10, left: -20, bottom: 5 } : { top: 10, right: 30, left: 0, bottom: 5 }}
                         >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                          <YAxis domain={[0, 100]} unit="%" tick={{ fontSize: 10 }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="name" tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
+                          <YAxis domain={[0, 100]} unit="%" tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }} stroke="#6b7280" />
                           <Tooltip
                             formatter={(value: any) => {
                               if (typeof value === 'number') {
@@ -531,9 +412,140 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                               }
                               return [`${value}%`, 'Accuracy'];
                             }}
-                            contentStyle={{ background: 'white', border: '1px solid #ccc' }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                           />
-                          <Line type="monotone" dataKey="accuracy" stroke="#8b5cf6" name="Accuracy" />
+                          <Line type="monotone" dataKey="accuracy" stroke="#ea580c" strokeWidth={2} name="Accuracy" dot={{ fill: '#ea580c', r: 4 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Depth vs Width Scatter Plot */}
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Pothole Depth vs Width</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-56 sm:h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <ScatterChart
+                          margin={isMobile ? { top: 10, right: 10, left: -20, bottom: 5 } : { top: 10, right: 30, left: 0, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis
+                            type="number"
+                            dataKey="depth"
+                            name="Depth"
+                            unit="cm"
+                            tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }}
+                            stroke="#6b7280"
+                          />
+                          <YAxis
+                            type="number"
+                            dataKey="width"
+                            name="Width"
+                            unit="cm"
+                            tick={isMobile ? { fontSize: 10 } : { fontSize: 12 }}
+                            stroke="#6b7280"
+                          />
+                          <ZAxis
+                            type="category"
+                            dataKey="severity"
+                            name="Severity"
+                            range={[50, 200]}
+                          />
+                          <Tooltip
+                            formatter={(value: any, name: any) => {
+                              if (typeof value === 'number' && (name === 'Depth' || name === 'Width')) {
+                                return [`${value}cm`, name];
+                              }
+                              return [value, name];
+                            }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                            cursor={{ strokeDasharray: '3 3' }}
+                          />
+                          <Scatter
+                            name="Potholes"
+                            data={scatterData}
+                            fill="#ea580c"
+                          />
+                        </ScatterChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+
+          {/* New tab for mobile that combines Status and Advanced */}
+          {isMobile && (
+            <TabsContent value="more" className="flex-1 overflow-y-auto">
+              <div className="space-y-3 sm:space-y-4 pb-4">
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Status Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-56 sm:h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={statusData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            outerRadius={60}
+                            fill="#8884d8"
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          >
+                            {statusData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Legend layout="horizontal" align="center" verticalAlign="bottom" wrapperStyle={{ fontSize: '11px' }} />
+                          <Tooltip
+                            formatter={(value: any) => {
+                              if (typeof value === 'number') {
+                                return [`${value} potholes`, 'Count'];
+                              }
+                              return [`${value}`, 'Count'];
+                            }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Detection Accuracy</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-56 sm:h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={accuracyBySeverity}
+                          margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#6b7280" />
+                          <YAxis domain={[0, 100]} unit="%" tick={{ fontSize: 10 }} stroke="#6b7280" />
+                          <Tooltip
+                            formatter={(value: any) => {
+                              if (typeof value === 'number') {
+                                return [`${value.toFixed(1)}%`, 'Accuracy'];
+                              }
+                              return [`${value}%`, 'Accuracy'];
+                            }}
+                            contentStyle={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                          />
+                          <Line type="monotone" dataKey="accuracy" stroke="#ea580c" strokeWidth={2} name="Accuracy" dot={{ fill: '#ea580c', r: 4 }} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
