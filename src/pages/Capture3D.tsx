@@ -344,7 +344,7 @@ export const Capture3D = () => {
         {currentStep === 1 && (
           <div className="space-y-4">
             {isLoadingLocation ? (
-              <Card className="border-0 shadow-lg">
+              <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16">
                   <div className="relative mb-4">
                     <Loader2 className="w-12 h-12 text-pothole-500 animate-spin" />
@@ -354,7 +354,7 @@ export const Capture3D = () => {
                 </CardContent>
               </Card>
             ) : locationError ? (
-              <Card className="border-0 shadow-lg">
+              <Card>
                 <CardContent className="text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
                     <MapPin className="w-8 h-8 text-red-600" />
@@ -372,7 +372,7 @@ export const Capture3D = () => {
             ) : location ? (
               <>
                 {/* Map */}
-                <Card className="border-0 shadow-lg overflow-hidden">
+                <Card className="overflow-hidden">
                   <div className="relative aspect-[4/3] sm:aspect-[16/9]">
                     <div ref={mapContainerRef} className="absolute inset-0" />
                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-md">
@@ -391,7 +391,7 @@ export const Capture3D = () => {
 
                 {/* Address */}
                 {address && (
-                  <Card className="border-0 shadow-md">
+                  <Card>
                     <CardContent className="py-4">
                       <div className="flex items-start gap-3">
                         <MapPin className="w-5 h-5 text-pothole-500 mt-0.5 flex-shrink-0" />
@@ -424,7 +424,7 @@ export const Capture3D = () => {
         {currentStep === 2 && (
           <div className="space-y-4">
             {/* Camera Viewfinder */}
-            <Card className="border-0 shadow-lg overflow-hidden">
+            <Card className="overflow-hidden">
               <div className="relative aspect-[4/3] bg-gray-900">
                 <video
                   ref={videoRef}
@@ -519,7 +519,7 @@ export const Capture3D = () => {
 
             {/* Tips - Collapsible */}
             {!capturedVideo && (
-              <Card className="border-blue-200 bg-blue-50">
+              <Card className="border-blue-200/50 bg-blue-50/80">
                 <CardContent className="py-3">
                   <div className="flex items-start gap-2">
                     <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -535,7 +535,7 @@ export const Capture3D = () => {
             {/* Video Preview */}
             {capturedVideo && (
               <>
-                <Card className="border-0 shadow-md">
+                <Card>
                   <CardContent className="py-4">
                     <div className="flex items-center justify-between mb-3">
                       <div>

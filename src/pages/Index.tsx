@@ -123,6 +123,11 @@ const Index = () => {
     setSelectedPothole(pothole);
   };
 
+  const handleClosePothole = () => {
+    setSelectedPothole(null);
+    mapRef.current?.closePopup();
+  };
+
   const handleUpdatePotholeStatus = async (id: string, newStatus: Status) => {
     try {
       // Update in Supabase
@@ -273,16 +278,25 @@ const Index = () => {
       {/* Floating Pothole Details Panel */}
       {selectedPothole && (
         <div className={`fixed ${
-          isMobile 
-            ? 'inset-x-4 top-20 bottom-4 z-40 max-h-[calc(100vh-6rem)]' 
-            : 'top-24 right-4 z-30 w-96 max-h-[calc(100vh-8rem)]'
-        } floating-panel overflow-hidden transition-all duration-300 ease-in-out animate-fade-in`}>
-          <div className="h-full overflow-y-auto">
-            <PotholeDetails 
-              pothole={selectedPothole} 
-              onClose={() => setSelectedPothole(null)}
-              onUpdateStatus={handleUpdatePotholeStatus}
-            />
+          isMobile
+            ? 'inset-x-4 top-20 bottom-4 z-40'
+            : 'top-24 right-4 bottom-4 z-30 w-96'
+        } floating-panel overflow-hidden animate-scale-in`}>
+          <div className="relative h-full flex flex-col">
+            <button
+              onClick={handleClosePothole}
+              className="absolute top-3 right-6 p-2.5 rounded-full hover:bg-gray-100/80 transition-all duration-200 hover:scale-110 hover:rotate-90 z-50 bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200/50"
+              aria-label="Close panel"
+            >
+              <X size={20} className="text-gray-600" />
+            </button>
+            <div className="flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+              <PotholeDetails
+                pothole={selectedPothole}
+                onClose={handleClosePothole}
+                onUpdateStatus={handleUpdatePotholeStatus}
+              />
+            </div>
           </div>
         </div>
       )}

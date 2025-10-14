@@ -32,22 +32,22 @@ export const PotholeFilters = ({
   filteredCount
 }: PotholeFiltersProps) => {
   return (
-    <div className="bg-white/70 backdrop-blur-xl shadow-xl border border-white/20 backdrop-saturate-150 rounded-lg p-4 mb-4">
+    <div className="bg-white/70 backdrop-blur-xl shadow-xl border border-white/20 backdrop-saturate-150 rounded-lg p-6 mb-4">
       <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h3 className="font-semibold text-lg">Filter Potholes</h3>
-          <Badge variant="outline" className="bg-pothole-50 text-pothole-700 border-pothole-200">
+          <Badge variant="outline" className="bg-pothole-50 text-pothole-700 border-pothole-200 w-fit">
             Showing {filteredCount} of {totalPotholes}
           </Badge>
         </div>
-        
+
         <Separator />
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="text-sm font-medium mb-1 block text-gray-700">Severity</label>
-            <Select 
-              value={severity} 
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-2 block text-gray-700">Severity</label>
+            <Select
+              value={severity}
               onValueChange={(value) => onSeverityChange(value as Severity | 'all')}
             >
               <SelectTrigger className="w-full border-pothole-200 focus:ring-pothole-500">
@@ -62,11 +62,11 @@ export const PotholeFilters = ({
               </SelectContent>
             </Select>
           </div>
-          
-          <div>
-            <label className="text-sm font-medium mb-1 block text-gray-700">Status</label>
-            <Select 
-              value={status} 
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-2 block text-gray-700">Status</label>
+            <Select
+              value={status}
               onValueChange={(value) => onStatusChange(value as Status | 'all')}
             >
               <SelectTrigger className="w-full border-pothole-200 focus:ring-pothole-500">
@@ -82,12 +82,12 @@ export const PotholeFilters = ({
               </SelectContent>
             </Select>
           </div>
-          
-          <div className="flex items-end">
-            <Button 
-              variant="outline" 
+
+          <div className="flex flex-col justify-end sm:col-span-2 lg:col-span-1">
+            <Button
+              variant="outline"
               onClick={onClearFilters}
-              className="w-full border-pothole-300 text-pothole-700 hover:bg-pothole-50"
+              className="w-full border-pothole-300 text-pothole-700 hover:bg-pothole-50 h-10"
             >
               Clear Filters
             </Button>

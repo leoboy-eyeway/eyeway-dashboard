@@ -159,7 +159,7 @@ export const DocumentManagement: React.FC<DocumentManagementProps> = ({ classNam
   };
 
   return (
-    <Card className={`bg-white/70 backdrop-blur-xl shadow-xl border border-white/20 backdrop-saturate-150 flex flex-col h-full ${className}`}>
+    <Card className={`flex flex-col h-full ${className}`}>
       <CardHeader className="flex-shrink-0">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <CardTitle className="text-lg font-bold">Pothole Management Documents</CardTitle>

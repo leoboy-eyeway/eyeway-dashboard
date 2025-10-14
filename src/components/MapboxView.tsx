@@ -11,6 +11,7 @@ interface MapboxViewProps {
 export interface MapboxViewRef {
   toggleViewMode: () => void;
   getCurrentMode: () => boolean;
+  closePopup: () => void;
 }
 
 export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes, onSelectPothole }, ref) => {
@@ -116,7 +117,13 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
         map.setFog(null);
       }
     },
-    getCurrentMode: () => is3DMode
+    getCurrentMode: () => is3DMode,
+    closePopup: () => {
+      if (popupRef.current) {
+        popupRef.current.remove();
+        popupRef.current = null;
+      }
+    }
   }));
 
   // Iligan City center coordinates
@@ -234,25 +241,19 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
 
     mapboxgl.accessToken = MAPBOX_TOKEN;
 
-    // Initialize map
+    // Initialize map with blueprint style
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/light-v11',
       center: [iliganCity.lng, iliganCity.lat],
       zoom: 15.5,
       pitch: is3DMode ? 60 : 0,
       bearing: -20,
-      projection: is3DMode ? ({ name: 'globe' } as any) : undefined
+      projection: is3DMode ? ({ name: 'globe' } as any) : undefined,
+      attributionControl: false
     });
 
     mapRef.current = map;
-
-    // Add navigation controls
-    map.addControl(new mapboxgl.NavigationControl({
-      showCompass: true,
-      showZoom: true,
-      visualizePitch: true
-    }), 'bottom-right');
 
     // Add scale control
     map.addControl(new mapboxgl.ScaleControl(), 'bottom-left');
@@ -260,6 +261,56 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
     // Handle map load
     map.on('load', () => {
       setIsMapLoaded(true);
+
+      // Hide business/commercial POI labels, road names, and water body names
+      const layers = map.getStyle().layers;
+      layers.forEach((layer: any) => {
+        // Hide business/commercial place labels, road names, and water body names
+        if (layer.id.includes('poi-label') ||
+            layer.id.includes('place_label_business') ||
+            layer.id.includes('place_label_commercial') ||
+            layer.id.includes('place_label_commerce') ||
+            layer.id.includes('business') ||
+            layer.id.includes('commercial') ||
+            layer.id.includes('road-label') ||
+            (layer.id.includes('road') && layer.id.includes('label')) ||
+            layer.id.includes('water-label') ||
+            layer.id.includes('waterway-label') ||
+            (layer.id.includes('water') && layer.id.includes('label'))) {
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
+
+        // Blueprint styling - make roads darker for better visibility
+        if (layer.id.includes('road-highway') ||
+            layer.id.includes('highway') ||
+            layer.id.includes('motorway')) {
+          if (layer.type === 'line') {
+            map.setPaintProperty(layer.id, 'line-color', '#d1d5db'); // Darker gray for highways
+            map.setPaintProperty(layer.id, 'line-width', 3); // Thicker highways
+          }
+        }
+
+        // Make other roads darker gray
+        if ((layer.id.includes('road') && !layer.id.includes('highway') && !layer.id.includes('motorway')) ||
+            layer.id.includes('street') ||
+            layer.id.includes('primary') ||
+            layer.id.includes('secondary') ||
+            layer.id.includes('tertiary')) {
+          if (layer.type === 'line') {
+            map.setPaintProperty(layer.id, 'line-color', '#9ca3af'); // Darker gray for roads
+          }
+        }
+
+        // Make water bodies light blue for blueprint effect
+        if (layer.id.includes('water') && layer.type === 'fill') {
+          map.setPaintProperty(layer.id, 'fill-color', '#dbeafe'); // Light blue
+        }
+
+        // Make background more blueprint-like (light blue-gray)
+        if (layer.id.includes('background')) {
+          map.setPaintProperty(layer.id, 'background-color', '#f8fafc'); // Very light blue-gray
+        }
+      });
 
       // Add 3D features only if in 3D mode
       if (is3DMode) {
@@ -377,28 +428,31 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
           popupRef.current.remove();
         }
 
-        // Create popup content
+        // Create popup content with simple styling
         const popupContent = `
-          <div class="text-sm p-2">
-            <strong class="text-base">Pothole #${pothole.id}</strong><br/>
-            <span class="font-semibold">Severity: </span>
-            <span class="font-bold uppercase" style="color: ${color}">
-              ${pothole.severity}
-            </span><br/>
-            ${pothole.lidarData ? `
-              <strong class="text-xs">3D Data Available</strong><br/>
-              <span class="text-xs">Depth: ${pothole.lidarData.surface?.depth}cm</span><br/>
-              <span class="text-xs">Width: ${pothole.lidarData.surface?.width}cm</span>
-            ` : '<span class="text-xs text-gray-500">No 3D data available</span>'}
+          <div class="p-4 min-w-[200px] pr-10">
+            <div class="flex items-start justify-between mb-3 gap-3">
+              <h3 class="font-bold text-lg text-gray-900 flex-1">Pothole #${pothole.id.slice(0, 8)}</h3>
+              <div class="w-3 h-3 rounded-full flex-shrink-0 mt-1" style="background-color: ${color}; box-shadow: 0 0 8px ${color}80"></div>
+            </div>
+
+            <div>
+              <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Severity</div>
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full" style="background-color: ${color}"></div>
+                <span class="font-semibold uppercase text-sm" style="color: ${color}">${pothole.severity}</span>
+              </div>
+            </div>
           </div>
         `;
 
-        // Create and show popup
+        // Create and show popup with improved styling
         const popup = new mapboxgl.Popup({
           offset: 35,
-          className: 'pothole-popup',
+          className: 'pothole-popup-enhanced',
           closeButton: true,
-          closeOnClick: false
+          closeOnClick: false,
+          maxWidth: '320px'
         })
           .setLngLat([pothole.location.lng, pothole.location.lat])
           .setHTML(popupContent)
@@ -427,7 +481,7 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
 
       {/* Map Legend */}
       <div
-        className="absolute bottom-8 right-4 bg-white/90 backdrop-blur-sm shadow-lg border border-gray-200 rounded-lg z-[400] cursor-pointer transition-all duration-300 ease-in-out overflow-hidden"
+        className="absolute bottom-8 right-4 bg-white/20 backdrop-blur-xl shadow-2xl border border-white/30 rounded-2xl z-[400] cursor-pointer transition-all duration-300 ease-in-out overflow-hidden"
         onMouseEnter={() => setIsLegendExpanded(true)}
         onMouseLeave={() => setIsLegendExpanded(false)}
       >
@@ -463,13 +517,15 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
         )}
       </div>
 
-      {/* View Mode Toggle */}
-      <div
-        className="absolute top-24 left-4 bg-blue-600 text-white px-3 py-1 rounded-md shadow-lg z-[400] text-xs font-semibold cursor-pointer hover:bg-blue-700 transition-colors hidden md:block"
-        onClick={toggleViewMode}
-        title={`Click to switch to ${is3DMode ? '2D' : '3D'} mode`}
-      >
-        {is3DMode ? '3D Mode' : '2D Mode'}
+      {/* View Mode Toggle - Desktop */}
+      <div className="absolute top-24 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl z-[400] hidden md:block pointer-events-none">
+        <div
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-full shadow-lg font-semibold text-sm cursor-pointer hover:bg-blue-700 transition-all active:scale-95 w-fit pointer-events-auto"
+          onClick={toggleViewMode}
+          title={`Click to switch to ${is3DMode ? '2D' : '3D'} mode`}
+        >
+          {is3DMode ? '3D Mode' : '2D Mode'}
+        </div>
       </div>
     </div>
   );

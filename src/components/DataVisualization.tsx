@@ -129,7 +129,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
   const chartHeight = isMobile ? 220 : 240;
   
   return (
-    <Card className="flex flex-col h-full bg-white border-0 shadow-none">
+    <Card className="flex flex-col h-full">
       <CardHeader className="flex-shrink-0 pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg sm:text-xl font-bold text-gray-900">Pothole Analytics</CardTitle>

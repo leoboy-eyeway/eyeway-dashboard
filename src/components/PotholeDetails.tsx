@@ -55,62 +55,59 @@ export const PotholeDetails = ({
   };
 
   return (
-    <Card className="border border-gray-200 shadow-md animate-fade-in">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-bold text-gray-800">Pothole #{pothole.id}</CardTitle>
-          {getStatusBadge(pothole.status)}
+    <Card className="animate-fade-in">
+      <CardHeader className="pb-3 border-b border-gray-200/50 pt-14 pr-16">
+        <div className="flex justify-between items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xl font-bold text-gray-900">Pothole #{pothole.id.slice(0, 8)}</CardTitle>
+            <p className="text-xs text-gray-500 mt-1">{pothole.location.address}</p>
+          </div>
+          <div className="flex-shrink-0">
+            {getStatusBadge(pothole.status)}
+          </div>
         </div>
       </CardHeader>
-      
-      <CardContent className="space-y-4">
-        <div className="aspect-video bg-gray-100 rounded-md overflow-hidden">
-          {pothole.images && pothole.images.length > 0 ? (
-            <img 
-              src={pothole.images[0]} 
-              alt={`Pothole ${pothole.id}`} 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400">
-              No image available
-            </div>
-          )}
+
+      <CardContent className="space-y-5 pt-4">
+        <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden flex items-center justify-center border border-gray-200">
+          <div className="text-center">
+            <svg className="w-16 h-16 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <div className="text-sm text-gray-500 font-medium">Image Placeholder</div>
+            <div className="text-xs text-gray-400 mt-1">Capture pending</div>
+          </div>
         </div>
 
-        <div>
-          <h4 className="text-sm font-medium text-gray-500 mb-1">Detection Accuracy</h4>
-          <div className="flex items-center space-x-2">
-            <Progress value={pothole.detectionAccuracy * 100} className="h-2" />
-            <span className="text-sm font-medium">
+        {/* Detection Accuracy and Severity - Side by side */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl p-4 border border-blue-200/50">
+            <div className="text-xs uppercase tracking-wide text-blue-600 font-semibold mb-2">Detection Accuracy</div>
+            <div className="text-3xl font-bold text-blue-900 mb-1">
               {Math.round(pothole.detectionAccuracy * 100)}%
-            </span>
+            </div>
+            <Progress value={pothole.detectionAccuracy * 100} className="h-1.5" />
           </div>
-        </div>
-        
-        <div className="group cursor-pointer">
-          <h4 className="text-sm font-medium text-gray-500 mb-1">Severity</h4>
-          <div className="flex items-center space-x-2 transition-all duration-300 ease-in-out group-hover:scale-110 group-hover:space-x-3">
-            <div className={`w-3 h-3 rounded-full ${getSeverityColor(pothole.severity)} transition-all duration-300 ease-in-out group-hover:w-5 group-hover:h-5 group-hover:shadow-lg`}></div>
-            <span className="capitalize font-semibold transition-all duration-300 ease-in-out group-hover:text-lg group-hover:font-bold">{pothole.severity}</span>
-          </div>
-          <div className="mt-2 opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:max-h-20">
-            <div className="text-xs text-gray-400 bg-gray-50 p-2 rounded-md border">
-              <div className="flex justify-between items-center">
-                <span>Detection confidence:</span>
-                <span className="font-medium">{Math.round(pothole.detectionAccuracy * 100)}%</span>
-              </div>
-              <div className="text-xs mt-1 text-center">
-                Click to see repair priority details
-              </div>
+
+          <div className={`bg-gradient-to-br ${
+            pothole.severity === 'critical' ? 'from-red-50 to-red-100/50 border-red-200/50' :
+            pothole.severity === 'high' ? 'from-orange-50 to-orange-100/50 border-orange-200/50' :
+            pothole.severity === 'medium' ? 'from-yellow-50 to-yellow-100/50 border-yellow-200/50' :
+            'from-green-50 to-green-100/50 border-green-200/50'
+          } rounded-xl p-4 border`}>
+            <div className="text-xs uppercase tracking-wide text-gray-600 font-semibold mb-2">Severity</div>
+            <div className="flex items-center gap-2">
+              <div className={`w-4 h-4 rounded-full ${getSeverityColor(pothole.severity)} shadow-md`}></div>
+              <span className="capitalize font-bold text-xl text-gray-900">{pothole.severity}</span>
             </div>
           </div>
         </div>
 
-        <div>
-          <h4 className="text-sm font-medium text-gray-500 mb-1">Location</h4>
-          <p className="text-sm">{pothole.location.address}</p>
-          <p className="text-xs text-gray-500 mt-1">
+        {/* Location */}
+        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+          <div className="text-xs uppercase tracking-wide text-gray-600 font-semibold mb-2">Location</div>
+          <p className="text-sm font-medium text-gray-900">{pothole.location.address}</p>
+          <p className="text-xs text-gray-500 mt-1 font-mono">
             {pothole.location.lat.toFixed(6)}, {pothole.location.lng.toFixed(6)}
           </p>
         </div>
@@ -118,70 +115,79 @@ export const PotholeDetails = ({
         {/* Gaussian Splatting 3D Visualization */}
         {pothole.lidarData && (
           <>
-            <Separator />
+            <Separator className="my-4" />
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-2">3D Visualization</h4>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">3D Gaussian Splatting</h4>
+              </div>
               <GaussianSplattingViewer data={pothole.lidarData} />
             </div>
-            
-            <div className="bg-gray-50 p-3 rounded-md border border-gray-200 space-y-3">
+
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-4 rounded-xl border border-gray-200 space-y-4 select-text">
               {pothole.lidarData.pointCloud && (
-                <div>
-                  <h5 className="text-xs font-semibold text-gray-700">Point Cloud</h5>
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <div>
-                      <span className="text-xs text-gray-500">Density</span>
-                      <p className="text-sm font-medium">{pothole.lidarData.pointCloud.density} pts/m²</p>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <h5 className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Gaussian Splat Data</h5>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center">
+                      <div className="text-xs text-gray-500 mb-1">Density</div>
+                      <div className="text-base font-bold text-gray-900">{pothole.lidarData.pointCloud.density}</div>
+                      <div className="text-xs text-gray-400">splats/m²</div>
                     </div>
-                    <div>
-                      <span className="text-xs text-gray-500">Points</span>
-                      <p className="text-sm font-medium">{pothole.lidarData.pointCloud.points.toLocaleString()}</p>
+                    <div className="text-center border-x border-gray-200">
+                      <div className="text-xs text-gray-500 mb-1">Splats</div>
+                      <div className="text-base font-bold text-gray-900">{pothole.lidarData.pointCloud.points.toLocaleString()}</div>
+                      <div className="text-xs text-gray-400">total</div>
                     </div>
-                    <div>
-                      <span className="text-xs text-gray-500">Accuracy</span>
-                      <p className="text-sm font-medium">{(pothole.lidarData.pointCloud.accuracy * 100).toFixed(1)}%</p>
+                    <div className="text-center">
+                      <div className="text-xs text-gray-500 mb-1">Quality</div>
+                      <div className="text-base font-bold text-gray-900">{(pothole.lidarData.pointCloud.accuracy * 100).toFixed(1)}%</div>
+                      <div className="text-xs text-gray-400">reconstruction</div>
                     </div>
                   </div>
                 </div>
               )}
-              
+
               {pothole.lidarData.surface && (
-                <div>
-                  <h5 className="text-xs font-semibold text-gray-700">Surface Analysis</h5>
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <div>
-                      <span className="text-xs text-gray-500">Depth</span>
-                      <p className="text-sm font-medium">{pothole.lidarData.surface.depth} cm</p>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <h5 className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Surface Analysis</h5>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center">
+                      <div className="text-xs text-gray-500 mb-1">Depth</div>
+                      <div className="text-xl font-bold text-red-600">{pothole.lidarData.surface.depth}</div>
+                      <div className="text-xs text-gray-400">cm</div>
                     </div>
-                    <div>
-                      <span className="text-xs text-gray-500">Width</span>
-                      <p className="text-sm font-medium">{pothole.lidarData.surface.width} cm</p>
+                    <div className="text-center border-x border-gray-200">
+                      <div className="text-xs text-gray-500 mb-1">Width</div>
+                      <div className="text-xl font-bold text-orange-600">{pothole.lidarData.surface.width}</div>
+                      <div className="text-xs text-gray-400">cm</div>
                     </div>
-                    <div>
-                      <span className="text-xs text-gray-500">Area</span>
-                      <p className="text-sm font-medium">{pothole.lidarData.surface.area} m²</p>
+                    <div className="text-center">
+                      <div className="text-xs text-gray-500 mb-1">Area</div>
+                      <div className="text-xl font-bold text-blue-600">{pothole.lidarData.surface.area}</div>
+                      <div className="text-xs text-gray-400">m²</div>
                     </div>
                   </div>
                 </div>
               )}
-              
+
               {pothole.lidarData.classification && (
-                <div>
-                  <h5 className="text-xs font-semibold text-gray-700">Classification</h5>
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <div>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <h5 className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-2">Classification</h5>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
                       <span className="text-xs text-gray-500">Confidence</span>
-                      <p className="text-sm font-medium">{pothole.lidarData.classification.confidence}%</p>
+                      <span className="text-sm font-bold text-gray-900">{pothole.lidarData.classification.confidence}%</span>
                     </div>
-                    <div>
+                    <div className="flex justify-between items-center">
                       <span className="text-xs text-gray-500">Model</span>
-                      <p className="text-sm font-medium">{pothole.lidarData.classification.model}</p>
+                      <span className="text-sm font-mono font-medium text-gray-900">{pothole.lidarData.classification.model}</span>
                     </div>
-                    <div className="col-span-2">
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                       <span className="text-xs text-gray-500">Scan Date</span>
-                      <p className="text-sm font-medium">
+                      <span className="text-xs font-medium text-gray-900">
                         {formatDate(pothole.lidarData.classification.scan_date)}
-                      </p>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -190,39 +196,45 @@ export const PotholeDetails = ({
           </>
         )}
         
-        <Separator />
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <h4 className="text-xs font-medium text-gray-500">Reported</h4>
-            <p className="text-sm">{formatDate(pothole.reportDate)}</p>
+        <Separator className="my-4" />
+
+        {/* Timeline */}
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-4 border border-gray-200">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-blue-500 rounded-full"></div>
+            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide">Timeline</h4>
           </div>
-          
-          <div>
-            <h4 className="text-xs font-medium text-gray-500">Scheduled Repair</h4>
-            <p className="text-sm">{formatDate(pothole.scheduledRepairDate)}</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Reported</div>
+              <p className="text-sm font-semibold text-gray-900">{formatDate(pothole.reportDate)}</p>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Scheduled Repair</div>
+              <p className="text-sm font-semibold text-gray-900">{formatDate(pothole.scheduledRepairDate)}</p>
+            </div>
           </div>
         </div>
-        
+
         {pothole.description && (
-          <div>
-            <h4 className="text-sm font-medium text-gray-500 mb-1">Description</h4>
-            <p className="text-sm">{pothole.description}</p>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <h4 className="text-xs font-bold text-blue-900 uppercase tracking-wide mb-2">Description</h4>
+            <p className="text-sm text-gray-700 leading-relaxed">{pothole.description}</p>
           </div>
         )}
       </CardContent>
-      
-      <CardFooter className="flex justify-between pt-2">
-        <Button 
+
+      <CardFooter className="flex justify-between gap-3 pt-4 border-t border-gray-100">
+        <Button
           variant="outline"
-          className="border-pothole-300 text-pothole-700 hover:bg-pothole-50"
+          className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold"
           onClick={onClose}
         >
           Close
         </Button>
         {onUpdateStatus && pothole.status !== 'completed' && (
-          <Button 
-            className="bg-pothole-500 hover:bg-pothole-600 text-white"
+          <Button
+            className="flex-1 bg-gradient-to-r from-pothole-500 to-pothole-600 hover:from-pothole-600 hover:to-pothole-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
             onClick={() => {
               const nextStatus = (): Pothole['status'] => {
                 switch (pothole.status) {

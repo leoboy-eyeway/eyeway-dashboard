@@ -37,7 +37,7 @@ export const Header = ({
   };
 
   return (
-    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-2xl bg-white/80 backdrop-blur-xl shadow-xl border border-white/20">
+    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-2xl bg-white/75 backdrop-blur-2xl shadow-xl border border-white/30">
       <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex justify-between items-center">
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center">

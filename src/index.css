@@ -143,12 +143,40 @@
   border-top-color: white;
 }
 
+/* Enhanced popup styling */
+.pothole-popup-enhanced .mapboxgl-popup-content {
+  @apply rounded-2xl shadow-2xl border border-gray-200;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pothole-popup-enhanced .mapboxgl-popup-tip {
+  border-top-color: rgba(255, 255, 255, 0.98);
+}
+
+.pothole-popup-enhanced .mapboxgl-popup-close-button {
+  @apply text-gray-400 hover:text-gray-600 transition-colors;
+  font-size: 20px;
+  padding: 8px 12px;
+  right: 4px;
+  top: 4px;
+  transition: all 0.2s ease;
+}
+
+.pothole-popup-enhanced .mapboxgl-popup-close-button:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+}
+
 /* Floating Panel Styles */
 .floating-panel {
   @apply bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20;
 }
 
-/* Smooth fade-in animation */
+/* Smooth animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -160,6 +188,96 @@
   }
 }
 
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-in;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.3s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-scale-out {
+  animation: scaleOut 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Hide Mapbox attribution and logo */
+.mapboxgl-ctrl-attrib {
+  display: none !important;
+}
+
+.mapboxgl-ctrl-logo {
+  display: none !important;
+}
+
+/* Hide any Mapbox attribution elements */
+.mapboxgl-ctrl-bottom-left .mapboxgl-ctrl-attrib,
+.mapboxgl-ctrl-bottom-right .mapboxgl-ctrl-attrib {
+  display: none !important;
 }
