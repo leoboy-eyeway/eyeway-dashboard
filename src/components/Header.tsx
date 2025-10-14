@@ -37,7 +37,7 @@ export const Header = ({
   };
 
   return (
-    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-2xl bg-white/75 backdrop-blur-2xl shadow-xl border border-white/30">
+    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10 backdrop-blur-2xl shadow-2xl border border-white/20 hover:border-white/30 hover:bg-gradient-to-br hover:from-white/25 hover:via-white/20 hover:to-white/15 transition-all duration-500 ease-out hover:shadow-3xl hover:backdrop-blur-3xl">
       <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex justify-between items-center">
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center">
