@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Camera, Video, Upload, Download, ArrowLeft, MapPin, Navigation, X, Check, Info, Loader2, Square } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
+import { MAPBOX_CONFIG, CAMERA_CONFIG, GEOLOCATION_OPTIONS, API_CONFIG, MAP_CONFIG } from '@/lib/constants';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 export const Capture3D = () => {
@@ -28,8 +29,6 @@ export const Capture3D = () => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
 
-  const MAPBOX_TOKEN = 'pk.eyJ1IjoibGVvYm95MTQiLCJhIjoiY21nb3d5M2VoMjRtbzJscTI3MnQ2Mnh4aiJ9.sqwaGRi4rx40uestYAB_Xg';
-
   const steps = [
     { number: 1, title: 'Location', description: 'Set location', icon: MapPin },
     { number: 2, title: 'Record', description: 'Record video', icon: Video },
@@ -45,7 +44,7 @@ export const Capture3D = () => {
   useEffect(() => {
     if (!location || !mapContainerRef.current) return;
 
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    mapboxgl.accessToken = MAPBOX_CONFIG.TOKEN;
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -156,18 +155,14 @@ export const Capture3D = () => {
         setLocationError(errorMessage);
         setIsLoadingLocation(false);
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
+      GEOLOCATION_OPTIONS
     );
   };
 
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${MAPBOX_TOKEN}`
+        `${API_CONFIG.MAPBOX_GEOCODING_URL}/${lng},${lat}.json?access_token=${MAPBOX_CONFIG.TOKEN}`
       );
       const data = await response.json();
       if (data.features && data.features.length > 0) {
@@ -182,9 +177,9 @@ export const Capture3D = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment',
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
+          facingMode: CAMERA_CONFIG.FACING_MODE,
+          width: { ideal: CAMERA_CONFIG.IDEAL_WIDTH },
+          height: { ideal: CAMERA_CONFIG.IDEAL_HEIGHT }
         }
       });
 
@@ -214,7 +209,7 @@ export const Capture3D = () => {
     setRecordingDuration(0);
 
     const mediaRecorder = new MediaRecorder(streamRef.current, {
-      mimeType: 'video/webm;codecs=vp9'
+      mimeType: CAMERA_CONFIG.VIDEO_MIME_TYPE
     });
 
     mediaRecorderRef.current = mediaRecorder;

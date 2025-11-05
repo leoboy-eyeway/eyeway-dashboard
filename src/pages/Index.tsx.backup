@@ -1,24 +1,20 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import Header from '@/components/Header';
 import PotholeFilters from '@/components/PotholeFilters';
 import MapboxView, { MapboxViewRef } from '@/components/MapboxView';
 import PotholeDetails from '@/components/PotholeDetails';
 import DataVisualization from '@/components/DataVisualization';
 import DocumentManagement from '@/components/DocumentManagement';
-import { Pothole, Status, Severity } from '@/types';
+import { Pothole, Status, Severity, GaussianSplattingData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { X } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  transformSupabasePothole,
-  filterPotholes,
-  calculateStatusUpdateData,
-  updatePotholeStatus,
-} from '@/lib/dataTransformers';
 
 const Index = () => {
   const [potholes, setPotholes] = useState<Pothole[]>([]);
+  const [filteredPotholes, setFilteredPotholes] = useState<Pothole[]>([]);
   const [selectedPothole, setSelectedPothole] = useState<Pothole | null>(null);
   const [severityFilter, setSeverityFilter] = useState<Severity | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
@@ -27,12 +23,7 @@ const Index = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const mapRef = useRef<MapboxViewRef>(null);
-  const [isMap3DMode, setIsMap3DMode] = useState(true);
-
-  // Memoize filtered potholes
-  const filteredPotholes = useMemo(() => {
-    return filterPotholes(potholes, severityFilter, statusFilter);
-  }, [potholes, severityFilter, statusFilter]);
+  const [isMap3DMode, setIsMap3DMode] = useState(true); // Default to 3D mode
 
   // Fetch potholes from Supabase
   useEffect(() => {
@@ -48,7 +39,53 @@ const Index = () => {
         }
 
         if (data) {
-          const transformedData: Pothole[] = data.map(transformSupabasePothole);
+          // Transform Supabase data to match our Pothole type
+          const transformedData: Pothole[] = data.map(item => {
+            // Parse lidarData as our GaussianSplattingData type
+            let parsedLidarData: GaussianSplattingData | undefined = undefined;
+            
+            if (item.lidar_data) {
+              const lidarJson = item.lidar_data as any;
+              
+              parsedLidarData = {
+                pointCloud: lidarJson.pointCloud ? {
+                  density: Number(lidarJson.pointCloud.density),
+                  points: Number(lidarJson.pointCloud.points),
+                  accuracy: Number(lidarJson.pointCloud.accuracy)
+                } : undefined,
+                surface: lidarJson.surface ? {
+                  depth: Number(lidarJson.surface.depth),
+                  width: Number(lidarJson.surface.width),
+                  area: Number(lidarJson.surface.area)
+                } : undefined,
+                classification: lidarJson.classification ? {
+                  confidence: Number(lidarJson.classification.confidence),
+                  model: String(lidarJson.classification.model),
+                  scan_date: String(lidarJson.classification.scan_date)
+                } : undefined
+              };
+            }
+            
+            return {
+              id: item.id,
+              location: {
+                lat: Number(item.latitude),
+                lng: Number(item.longitude),
+                address: `Road ID: ${item.road_id}`
+              },
+              severity: item.severity as Severity,
+              status: item.status as Status,
+              detectionAccuracy: item.detection_accuracy / 100,
+              reportDate: item.report_date,
+              scheduledRepairDate: item.scheduled_repair_date || undefined,
+              completionDate: item.completion_date || undefined,
+              images: item.image_url ? [item.image_url] : [],
+              description: item.description || undefined,
+              reportedBy: item.reported_by || undefined,
+              lidarData: parsedLidarData
+            };
+          });
+
           setPotholes(transformedData);
           console.log("Fetched potholes:", transformedData);
         }
@@ -67,21 +104,43 @@ const Index = () => {
     fetchPotholes();
   }, [toast]);
 
-  // Memoized callback for selecting a pothole
-  const handleSelectPothole = useCallback((pothole: Pothole) => {
-    setSelectedPothole(pothole);
-  }, []);
+  useEffect(() => {
+    // Apply filters
+    let filtered = [...potholes];
+    
+    if (severityFilter !== 'all') {
+      filtered = filtered.filter((p) => p.severity === severityFilter);
+    }
+    
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((p) => p.status === statusFilter);
+    }
+    
+    setFilteredPotholes(filtered);
+  }, [potholes, severityFilter, statusFilter]);
 
-  // Memoized callback for closing pothole details
-  const handleClosePothole = useCallback(() => {
+  const handleSelectPothole = (pothole: Pothole) => {
+    setSelectedPothole(pothole);
+  };
+
+  const handleClosePothole = () => {
     setSelectedPothole(null);
     mapRef.current?.closePopup();
-  }, []);
+  };
 
-  // Memoized callback for updating pothole status
-  const handleUpdatePotholeStatus = useCallback(async (id: string, newStatus: Status) => {
+  const handleUpdatePotholeStatus = async (id: string, newStatus: Status) => {
     try {
-      const updateData = calculateStatusUpdateData(newStatus);
+      // Update in Supabase
+      const updateData: any = { 
+        status: newStatus 
+      };
+      
+      // Add dates based on status
+      if (newStatus === 'scheduled') {
+        updateData.scheduled_repair_date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      } else if (newStatus === 'completed') {
+        updateData.completion_date = new Date().toISOString();
+      }
 
       const { error } = await supabase
         .from('potholes')
@@ -91,28 +150,43 @@ const Index = () => {
       if (error) throw error;
 
       // Update local state
-      setPotholes(prev => updatePotholeStatus(prev, id, newStatus));
-
+      setPotholes(prev => 
+        prev.map(p => 
+          p.id === id 
+            ? {
+                ...p,
+                status: newStatus,
+                scheduledRepairDate: newStatus === 'scheduled' 
+                  ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+                  : p.scheduledRepairDate,
+                completionDate: newStatus === 'completed'
+                  ? new Date().toISOString()
+                  : p.completionDate
+              }
+            : p
+        )
+      );
+      
       toast({
         title: "Status updated",
         description: `Pothole #${id} is now ${newStatus.replace('-', ' ')}.`,
       });
-
+      
       // Update selected pothole if it's the one being modified
-      setSelectedPothole(prev => {
-        if (!prev || prev.id !== id) return prev;
-
-        return {
-          ...prev,
-          status: newStatus,
-          scheduledRepairDate: newStatus === 'scheduled'
-            ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-            : prev.scheduledRepairDate,
-          completionDate: newStatus === 'completed'
-            ? new Date().toISOString()
-            : prev.completionDate,
-        };
-      });
+      setSelectedPothole(prev => 
+        prev && prev.id === id 
+          ? {
+              ...prev,
+              status: newStatus,
+              scheduledRepairDate: newStatus === 'scheduled' 
+                ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+                : prev.scheduledRepairDate,
+              completionDate: newStatus === 'completed'
+                ? new Date().toISOString()
+                : prev.completionDate
+            }
+          : prev
+      );
     } catch (error) {
       console.error('Error updating pothole status:', error);
       toast({
@@ -121,24 +195,22 @@ const Index = () => {
         description: "Could not update the pothole status. Please try again.",
       });
     }
-  }, [toast]);
+  };
 
-  // Memoized callback for clearing filters
-  const handleClearFilters = useCallback(() => {
+  const handleClearFilters = () => {
     setSeverityFilter('all');
     setStatusFilter('all');
-  }, []);
+  };
 
-  // Memoized callback for toggling view mode
-  const handleToggleViewMode = useCallback(() => {
+  const handleToggleViewMode = () => {
     mapRef.current?.toggleViewMode();
+    // Update local state to reflect the new mode
     setIsMap3DMode(!isMap3DMode);
-  }, [isMap3DMode]);
+  };
 
-  // Memoized callback for toggling panels
-  const togglePanel = useCallback((panel: 'filters' | 'data' | 'documents') => {
+  const togglePanel = (panel: 'filters' | 'data' | 'documents') => {
     setActivePanel(activePanel === panel ? null : panel);
-  }, [activePanel]);
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -154,10 +226,10 @@ const Index = () => {
           onSelectPothole={handleSelectPothole}
         />
       )}
-
+      
       {/* Floating Header with Integrated Controls */}
       <Header activePanel={activePanel} togglePanel={togglePanel} />
-
+      
       {/* Mobile Control Panel - Bottom */}
       <div className="fixed bottom-4 left-4 z-30 md:hidden flex flex-col gap-2">
         {/* 3D Mode Button */}
@@ -167,34 +239,34 @@ const Index = () => {
         >
           {isMap3DMode ? '3D Mode' : '2D Mode'}
         </button>
-
+        
         {/* Control Buttons */}
         <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-2 flex flex-col gap-1.5">
-          <button
+          <button 
             onClick={() => togglePanel('filters')}
             className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
-              activePanel === 'filters'
-                ? 'bg-pothole-500 text-white shadow-md'
+              activePanel === 'filters' 
+                ? 'bg-pothole-500 text-white shadow-md' 
                 : 'bg-white hover:bg-gray-50'
             }`}
           >
             Filters
           </button>
-          <button
+          <button 
             onClick={() => togglePanel('data')}
             className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
-              activePanel === 'data'
-                ? 'bg-pothole-500 text-white shadow-md'
+              activePanel === 'data' 
+                ? 'bg-pothole-500 text-white shadow-md' 
                 : 'bg-white hover:bg-gray-50'
             }`}
           >
             Data
           </button>
-          <button
+          <button 
             onClick={() => togglePanel('documents')}
             className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
-              activePanel === 'documents'
-                ? 'bg-pothole-500 text-white shadow-md'
+              activePanel === 'documents' 
+                ? 'bg-pothole-500 text-white shadow-md' 
                 : 'bg-white hover:bg-gray-50'
             }`}
           >
@@ -202,7 +274,7 @@ const Index = () => {
           </button>
         </div>
       </div>
-
+      
       {/* Floating Pothole Details Panel */}
       {selectedPothole && (
         <div className={`fixed ${
@@ -228,12 +300,12 @@ const Index = () => {
           </div>
         </div>
       )}
-
+      
       {/* Floating Panels */}
       {activePanel === 'filters' && (
         <div className={`fixed ${
-          isMobile
-            ? 'inset-x-4 top-20 bottom-4 z-35'
+          isMobile 
+            ? 'inset-x-4 top-20 bottom-4 z-35' 
             : 'top-24 left-4 w-96 max-h-[calc(100vh-8rem)]'
         } floating-panel animate-fade-in overflow-hidden`}>
           <div className="relative h-full flex flex-col">
@@ -261,8 +333,8 @@ const Index = () => {
 
       {activePanel === 'data' && (
         <div className={`fixed ${
-          isMobile
-            ? 'inset-x-4 top-20 bottom-4 z-35'
+          isMobile 
+            ? 'inset-x-4 top-20 bottom-4 z-35' 
             : 'top-24 left-4 right-4 max-w-6xl max-h-[calc(100vh-8rem)]'
         } floating-panel animate-fade-in overflow-hidden`}>
           <div className="relative h-full flex flex-col">
@@ -279,11 +351,11 @@ const Index = () => {
           </div>
         </div>
       )}
-
+      
       {activePanel === 'documents' && (
         <div className={`fixed ${
-          isMobile
-            ? 'inset-x-4 top-20 bottom-4 z-35'
+          isMobile 
+            ? 'inset-x-4 top-20 bottom-4 z-35' 
             : 'top-24 left-4 right-4 max-w-6xl max-h-[calc(100vh-8rem)]'
         } floating-panel animate-fade-in overflow-hidden`}>
           <div className="relative h-full flex flex-col">
