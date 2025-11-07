@@ -33,6 +33,49 @@ export const SEVERITY_COLORS = {
   critical: '#ef4444',
 } as const;
 
+// Road Colors - Professional cartography standards for Philippines
+// Based on international mapping conventions and road hierarchy
+export const ROAD_COLORS = {
+  // National Roads / Trunk Roads (N-Routes, AH Routes)
+  // High visibility orange for primary national infrastructure
+  NATIONAL: '#f97316',        // Orange - National Roads (e.g., N1, AH26)
+  NATIONAL_NAME: 'National Road',
+
+  // Major Highways / Motorways (Limited access highways)
+  // Red for critical high-speed infrastructure
+  HIGHWAY: '#ef4444',         // Red - Major Highways/Expressways
+  HIGHWAY_NAME: 'Highway',
+
+  // Primary Roads (Major provincial roads connecting cities)
+  // Light orange for important regional connections
+  PRIMARY: '#fb923c',         // Light Orange - Primary Roads
+  PRIMARY_NAME: 'Primary Road',
+
+  // Secondary Roads (Provincial roads, urban arterials)
+  // Yellow/Amber for secondary importance
+  SECONDARY: '#fbbf24',       // Amber - Secondary Roads
+  SECONDARY_NAME: 'Secondary Road',
+
+  // Tertiary Roads / Local Streets
+  // Gray for local access roads
+  TERTIARY: '#9ca3af',        // Gray - Tertiary/Local Roads
+  TERTIARY_NAME: 'Local Street',
+
+  // Minor Roads
+  MINOR: '#d1d5db',           // Light Gray - Minor roads
+  MINOR_NAME: 'Minor Road',
+} as const;
+
+// Road Widths for visual hierarchy
+export const ROAD_WIDTHS = {
+  NATIONAL: 4.5,    // Widest - most important
+  HIGHWAY: 4,       // Very wide
+  PRIMARY: 3.5,     // Wide
+  SECONDARY: 2.5,   // Medium
+  TERTIARY: 2,      // Normal
+  MINOR: 1.5,       // Narrow
+} as const;
+
 // Map Feature IDs
 export const MAP_LAYER_IDS = {
   BUILDINGS_3D: 'add-3d-buildings',

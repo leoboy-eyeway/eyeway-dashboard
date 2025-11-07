@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Pothole } from '@/types';
-import { MAPBOX_CONFIG, MAP_CONFIG, SEVERITY_COLORS, MAP_LAYER_IDS } from '@/lib/constants';
+import { MAPBOX_CONFIG, MAP_CONFIG, SEVERITY_COLORS, MAP_LAYER_IDS, ROAD_COLORS, ROAD_WIDTHS } from '@/lib/constants';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface MapboxViewProps {
@@ -244,45 +244,109 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
     map.on('load', () => {
       setIsMapLoaded(true);
 
-      // Hide specific POI labels but keep attribution
+      // Configure map styling with professional road hierarchy
       const layers = map.getStyle().layers;
       layers.forEach((layer: any) => {
+        // Hide business/commercial POI labels and water labels, but KEEP ROAD LABELS
         if (
           layer.id.includes('poi-label') ||
           layer.id.includes('place_label_business') ||
           layer.id.includes('place_label_commercial') ||
-          layer.id.includes('road-label') ||
-          (layer.id.includes('road') && layer.id.includes('label')) ||
           layer.id.includes('water-label') ||
           layer.id.includes('waterway-label')
         ) {
           map.setLayoutProperty(layer.id, 'visibility', 'none');
         }
 
-        // Blueprint styling
-        if (layer.id.includes('road-highway') || layer.id.includes('highway') || layer.id.includes('motorway')) {
-          if (layer.type === 'line') {
-            map.setPaintProperty(layer.id, 'line-color', '#d1d5db');
-            map.setPaintProperty(layer.id, 'line-width', 3);
+        // SHOW ROAD LABELS for National Roads and Major Roads
+        if (
+          layer.id.includes('road-label') ||
+          (layer.id.includes('road') && layer.id.includes('label'))
+        ) {
+          // Show labels for major roads only (trunk, primary, secondary)
+          if (
+            layer.id.includes('trunk') ||
+            layer.id.includes('primary') ||
+            layer.id.includes('motorway')
+          ) {
+            map.setLayoutProperty(layer.id, 'visibility', 'visible');
+            // Style road labels
+            if (map.getLayoutProperty(layer.id, 'text-field')) {
+              map.setPaintProperty(layer.id, 'text-color', '#1f2937'); // Dark gray
+              map.setPaintProperty(layer.id, 'text-halo-color', '#ffffff'); // White halo
+              map.setPaintProperty(layer.id, 'text-halo-width', 2);
+            }
+          } else {
+            // Hide labels for minor roads to reduce clutter
+            map.setLayoutProperty(layer.id, 'visibility', 'none');
           }
         }
 
+        // NATIONAL ROADS / TRUNK ROADS (N-Routes, AH Routes)
+        // These are the most important roads in the Philippines
+        if (layer.id.includes('trunk') || layer.id.includes('road-trunk')) {
+          if (layer.type === 'line') {
+            map.setPaintProperty(layer.id, 'line-color', ROAD_COLORS.NATIONAL);
+            map.setPaintProperty(layer.id, 'line-width', ROAD_WIDTHS.NATIONAL);
+          }
+        }
+
+        // HIGHWAYS / MOTORWAYS (Expressways, SLEX, NLEX, etc.)
+        if (layer.id.includes('motorway') || layer.id.includes('road-motorway')) {
+          if (layer.type === 'line') {
+            map.setPaintProperty(layer.id, 'line-color', ROAD_COLORS.HIGHWAY);
+            map.setPaintProperty(layer.id, 'line-width', ROAD_WIDTHS.HIGHWAY);
+          }
+        }
+
+        // PRIMARY ROADS (Major connecting roads)
+        if (layer.id.includes('road-primary') || layer.id.includes('primary')) {
+          if (layer.type === 'line') {
+            map.setPaintProperty(layer.id, 'line-color', ROAD_COLORS.PRIMARY);
+            map.setPaintProperty(layer.id, 'line-width', ROAD_WIDTHS.PRIMARY);
+          }
+        }
+
+        // SECONDARY ROADS (Urban arterials, provincial roads)
+        if (layer.id.includes('road-secondary') || layer.id.includes('secondary')) {
+          if (layer.type === 'line') {
+            map.setPaintProperty(layer.id, 'line-color', ROAD_COLORS.SECONDARY);
+            map.setPaintProperty(layer.id, 'line-width', ROAD_WIDTHS.SECONDARY);
+          }
+        }
+
+        // TERTIARY ROADS (Local collector roads)
+        if (layer.id.includes('road-tertiary') || layer.id.includes('tertiary')) {
+          if (layer.type === 'line') {
+            map.setPaintProperty(layer.id, 'line-color', ROAD_COLORS.TERTIARY);
+            map.setPaintProperty(layer.id, 'line-width', ROAD_WIDTHS.TERTIARY);
+          }
+        }
+
+        // MINOR ROADS / STREETS (Local streets, residential)
         if (
-          (layer.id.includes('road') && !layer.id.includes('highway') && !layer.id.includes('motorway')) ||
-          layer.id.includes('street') ||
-          layer.id.includes('primary') ||
-          layer.id.includes('secondary') ||
-          layer.id.includes('tertiary')
+          layer.id.includes('road-street') ||
+          layer.id.includes('road-minor') ||
+          layer.id.includes('road-local') ||
+          (layer.id.includes('road') &&
+           !layer.id.includes('trunk') &&
+           !layer.id.includes('motorway') &&
+           !layer.id.includes('primary') &&
+           !layer.id.includes('secondary') &&
+           !layer.id.includes('tertiary'))
         ) {
           if (layer.type === 'line') {
-            map.setPaintProperty(layer.id, 'line-color', '#9ca3af');
+            map.setPaintProperty(layer.id, 'line-color', ROAD_COLORS.MINOR);
+            map.setPaintProperty(layer.id, 'line-width', ROAD_WIDTHS.MINOR);
           }
         }
 
+        // Water styling - light blue for blueprint effect
         if (layer.id.includes('water') && layer.type === 'fill') {
           map.setPaintProperty(layer.id, 'fill-color', '#dbeafe');
         }
 
+        // Background - light blue-gray
         if (layer.id.includes('background')) {
           map.setPaintProperty(layer.id, 'background-color', '#f8fafc');
         }
@@ -349,7 +413,7 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
     <div className="fixed inset-0 z-0">
       <div ref={mapContainerRef} className="absolute inset-0" />
 
-      {/* Map Legend */}
+      {/* Pothole Severity Legend */}
       <div
         className="absolute bottom-8 right-4 bg-white/20 backdrop-blur-xl shadow-2xl border border-white/30 rounded-2xl z-[400] cursor-pointer transition-all duration-300 ease-in-out overflow-hidden"
         onMouseEnter={() => setIsLegendExpanded(true)}
@@ -364,7 +428,7 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
           </div>
         ) : (
           <div className="px-4 py-3">
-            <div className="text-xs font-semibold mb-3">Severity Legend</div>
+            <div className="text-xs font-semibold mb-3">Pothole Severity</div>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full border border-white" style={{ backgroundColor: SEVERITY_COLORS.low }}></div>
@@ -385,6 +449,33 @@ export const MapboxView = forwardRef<MapboxViewRef, MapboxViewProps>(({ potholes
             </div>
           </div>
         )}
+      </div>
+
+      {/* Road Hierarchy Legend */}
+      <div className="absolute bottom-8 left-4 bg-white/90 backdrop-blur-xl shadow-2xl border border-white/50 rounded-2xl z-[400] px-4 py-3 max-w-xs">
+        <div className="text-xs font-bold mb-2 text-gray-900">Road Classification</div>
+        <div className="space-y-1.5">
+          <div className="flex items-center space-x-2">
+            <div className="h-1 w-8 rounded-full" style={{ backgroundColor: ROAD_COLORS.NATIONAL, height: '4.5px' }}></div>
+            <span className="text-xs font-medium text-gray-700">{ROAD_COLORS.NATIONAL_NAME}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-1 w-8 rounded-full" style={{ backgroundColor: ROAD_COLORS.HIGHWAY, height: '4px' }}></div>
+            <span className="text-xs text-gray-600">{ROAD_COLORS.HIGHWAY_NAME}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-1 w-8 rounded-full" style={{ backgroundColor: ROAD_COLORS.PRIMARY, height: '3.5px' }}></div>
+            <span className="text-xs text-gray-600">{ROAD_COLORS.PRIMARY_NAME}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-1 w-8 rounded-full" style={{ backgroundColor: ROAD_COLORS.SECONDARY, height: '2.5px' }}></div>
+            <span className="text-xs text-gray-600">{ROAD_COLORS.SECONDARY_NAME}</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-1 w-8 rounded-full" style={{ backgroundColor: ROAD_COLORS.TERTIARY, height: '2px' }}></div>
+            <span className="text-xs text-gray-500">{ROAD_COLORS.TERTIARY_NAME}</span>
+          </div>
+        </div>
       </div>
 
       {/* View Mode Toggle - Desktop */}
