@@ -14,15 +14,19 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { currentUser } from '@/data/mockUsers';
 import { AuthModal } from './AuthModal';
 import { useNavigate } from 'react-router-dom';
-import { Camera } from 'lucide-react';
+import { Camera, Loader2 } from 'lucide-react';
 import logo from './logo.png';
 
 export const Header = ({
   activePanel,
-  togglePanel
+  togglePanel,
+  isLoading = false,
+  isPotholeDetailsOpen = false
 }: {
   activePanel: 'filters' | 'data' | 'documents' | null,
-  togglePanel: (panel: 'filters' | 'data' | 'documents') => void
+  togglePanel: (panel: 'filters' | 'data' | 'documents') => void,
+  isLoading?: boolean,
+  isPotholeDetailsOpen?: boolean
 }) => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -37,7 +41,11 @@ export const Header = ({
   };
 
   return (
-    <header className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl mx-auto rounded-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10 backdrop-blur-2xl shadow-2xl border border-white/20 hover:border-white/30 hover:bg-gradient-to-br hover:from-white/25 hover:via-white/20 hover:to-white/15 transition-all duration-500 ease-out hover:shadow-3xl hover:backdrop-blur-3xl">
+    <header className={`fixed top-4 z-50 rounded-2xl bg-gradient-to-br from-white/20 via-white/15 to-white/10 backdrop-blur-2xl shadow-2xl border border-white/20 hover:border-white/30 hover:bg-gradient-to-br hover:from-white/25 hover:via-white/20 hover:to-white/15 hover:shadow-3xl hover:backdrop-blur-3xl ${
+      isPotholeDetailsOpen
+        ? 'left-4 md:right-[calc(384px+2rem)] right-4 md:w-auto w-[calc(100%-2rem)]' // 384px (w-96) + 2rem spacing on desktop only
+        : 'left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl mx-auto'
+    }`}>
       <div className="px-3 sm:px-4 py-2.5 sm:py-3 flex justify-between items-center">
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center">
@@ -53,10 +61,11 @@ export const Header = ({
           <div className="hidden md:block">
             <Tabs value={activePanel || ""} className="w-fit">
               <TabsList className="bg-gray-100/50">
-                <TabsTrigger 
-                  value="filters" 
-                  onClick={() => togglePanel('filters')}
-                  className={activePanel === 'filters' ? 'bg-pothole-500 text-white' : ''}
+                <TabsTrigger
+                  value="filters"
+                  onClick={() => !isLoading && togglePanel('filters')}
+                  disabled={isLoading}
+                  className={`${activePanel === 'filters' ? 'bg-pothole-500 text-white' : ''} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   Filters
                 </TabsTrigger>
@@ -111,6 +120,10 @@ export const Header = ({
                 <DropdownMenuItem onClick={() => navigate('/capture-3d')}>
                   <Camera className="w-4 h-4 mr-2" />
                   3D Capture
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/processing')}>
+                  <Loader2 className="w-4 h-4 mr-2" />
+                  3D Progress
                 </DropdownMenuItem>
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>

@@ -41,6 +41,7 @@ export interface Pothole {
   description?: string;
   reportedBy?: string;
   lidarData?: GaussianSplattingData;
+  model_url?: string;
 }
 
 export interface User {

@@ -43,10 +43,10 @@ const Index = () => {
           const transformedData: Pothole[] = data.map(item => {
             // Parse lidarData as our GaussianSplattingData type
             let parsedLidarData: GaussianSplattingData | undefined = undefined;
-            
+
             if (item.lidar_data) {
               const lidarJson = item.lidar_data as any;
-              
+
               parsedLidarData = {
                 pointCloud: lidarJson.pointCloud ? {
                   density: Number(lidarJson.pointCloud.density),
@@ -65,7 +65,7 @@ const Index = () => {
                 } : undefined
               };
             }
-            
+
             return {
               id: item.id,
               location: {
@@ -107,15 +107,15 @@ const Index = () => {
   useEffect(() => {
     // Apply filters
     let filtered = [...potholes];
-    
+
     if (severityFilter !== 'all') {
       filtered = filtered.filter((p) => p.severity === severityFilter);
     }
-    
+
     if (statusFilter !== 'all') {
       filtered = filtered.filter((p) => p.status === statusFilter);
     }
-    
+
     setFilteredPotholes(filtered);
   }, [potholes, severityFilter, statusFilter]);
 
@@ -131,10 +131,10 @@ const Index = () => {
   const handleUpdatePotholeStatus = async (id: string, newStatus: Status) => {
     try {
       // Update in Supabase
-      const updateData: any = { 
-        status: newStatus 
+      const updateData: any = {
+        status: newStatus
       };
-      
+
       // Add dates based on status
       if (newStatus === 'scheduled') {
         updateData.scheduled_repair_date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -150,13 +150,13 @@ const Index = () => {
       if (error) throw error;
 
       // Update local state
-      setPotholes(prev => 
-        prev.map(p => 
-          p.id === id 
+      setPotholes(prev =>
+        prev.map(p =>
+          p.id === id
             ? {
                 ...p,
                 status: newStatus,
-                scheduledRepairDate: newStatus === 'scheduled' 
+                scheduledRepairDate: newStatus === 'scheduled'
                   ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
                   : p.scheduledRepairDate,
                 completionDate: newStatus === 'completed'
@@ -166,19 +166,19 @@ const Index = () => {
             : p
         )
       );
-      
+
       toast({
         title: "Status updated",
         description: `Pothole #${id} is now ${newStatus.replace('-', ' ')}.`,
       });
-      
+
       // Update selected pothole if it's the one being modified
-      setSelectedPothole(prev => 
-        prev && prev.id === id 
+      setSelectedPothole(prev =>
+        prev && prev.id === id
           ? {
               ...prev,
               status: newStatus,
-              scheduledRepairDate: newStatus === 'scheduled' 
+              scheduledRepairDate: newStatus === 'scheduled'
                 ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
                 : prev.scheduledRepairDate,
               completionDate: newStatus === 'completed'
@@ -226,10 +226,14 @@ const Index = () => {
           onSelectPothole={handleSelectPothole}
         />
       )}
-      
+
       {/* Floating Header with Integrated Controls */}
-      <Header activePanel={activePanel} togglePanel={togglePanel} />
-      
+      <Header
+        activePanel={activePanel}
+        togglePanel={togglePanel}
+        isPotholeDetailsOpen={!!selectedPothole}
+      />
+
       {/* Mobile Control Panel - Bottom */}
       <div className="fixed bottom-4 left-4 z-30 md:hidden flex flex-col gap-2">
         {/* 3D Mode Button */}
@@ -239,34 +243,34 @@ const Index = () => {
         >
           {isMap3DMode ? '3D Mode' : '2D Mode'}
         </button>
-        
+
         {/* Control Buttons */}
         <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-2 flex flex-col gap-1.5">
-          <button 
+          <button
             onClick={() => togglePanel('filters')}
             className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
-              activePanel === 'filters' 
-                ? 'bg-pothole-500 text-white shadow-md' 
+              activePanel === 'filters'
+                ? 'bg-pothole-500 text-white shadow-md'
                 : 'bg-white hover:bg-gray-50'
             }`}
           >
             Filters
           </button>
-          <button 
+          <button
             onClick={() => togglePanel('data')}
             className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
-              activePanel === 'data' 
-                ? 'bg-pothole-500 text-white shadow-md' 
+              activePanel === 'data'
+                ? 'bg-pothole-500 text-white shadow-md'
                 : 'bg-white hover:bg-gray-50'
             }`}
           >
             Data
           </button>
-          <button 
+          <button
             onClick={() => togglePanel('documents')}
             className={`px-5 py-2.5 text-sm font-medium rounded-xl transition-all ${
-              activePanel === 'documents' 
-                ? 'bg-pothole-500 text-white shadow-md' 
+              activePanel === 'documents'
+                ? 'bg-pothole-500 text-white shadow-md'
                 : 'bg-white hover:bg-gray-50'
             }`}
           >
@@ -274,14 +278,14 @@ const Index = () => {
           </button>
         </div>
       </div>
-      
-      {/* Floating Pothole Details Panel */}
+
+      {/* Side Slide Pothole Details Panel */}
       {selectedPothole && (
         <div className={`fixed ${
           isMobile
-            ? 'inset-x-4 top-20 bottom-4 z-40'
-            : 'top-24 right-4 bottom-4 z-30 w-96'
-        } floating-panel overflow-hidden animate-scale-in`}>
+            ? 'inset-x-0 top-0 bottom-0 z-40'
+            : 'top-0 right-0 bottom-0 z-30 w-96'
+        } floating-panel overflow-hidden`}>
           <div className="relative h-full flex flex-col">
             <button
               onClick={handleClosePothole}
@@ -300,12 +304,12 @@ const Index = () => {
           </div>
         </div>
       )}
-      
+
       {/* Floating Panels */}
       {activePanel === 'filters' && (
         <div className={`fixed ${
-          isMobile 
-            ? 'inset-x-4 top-20 bottom-4 z-35' 
+          isMobile
+            ? 'inset-x-4 top-20 bottom-4 z-35'
             : 'top-24 left-4 w-96 max-h-[calc(100vh-8rem)]'
         } floating-panel animate-fade-in overflow-hidden`}>
           <div className="relative h-full flex flex-col">
@@ -333,8 +337,8 @@ const Index = () => {
 
       {activePanel === 'data' && (
         <div className={`fixed ${
-          isMobile 
-            ? 'inset-x-4 top-20 bottom-4 z-35' 
+          isMobile
+            ? 'inset-x-4 top-20 bottom-4 z-35'
             : 'top-24 left-4 right-4 max-w-6xl max-h-[calc(100vh-8rem)]'
         } floating-panel animate-fade-in overflow-hidden`}>
           <div className="relative h-full flex flex-col">
@@ -351,11 +355,11 @@ const Index = () => {
           </div>
         </div>
       )}
-      
+
       {activePanel === 'documents' && (
         <div className={`fixed ${
-          isMobile 
-            ? 'inset-x-4 top-20 bottom-4 z-35' 
+          isMobile
+            ? 'inset-x-4 top-20 bottom-4 z-35'
             : 'top-24 left-4 right-4 max-w-6xl max-h-[calc(100vh-8rem)]'
         } floating-panel animate-fade-in overflow-hidden`}>
           <div className="relative h-full flex flex-col">

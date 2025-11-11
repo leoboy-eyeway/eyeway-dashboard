@@ -1,24 +1,30 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Camera, Video, Upload, Download, ArrowLeft, MapPin, Navigation, X, Check, Info, Loader2, Square } from 'lucide-react';
+import { Camera, Video, Upload, Download, ArrowLeft, MapPin, Navigation, X, Check, Info, Square, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { uploadVideoToKiriEngine, checkKiriEngineHealth } from '@/services/kiriEngine';
+import { addTask } from '@/services/supabaseTasksManager';
+import { useToast } from '@/hooks/use-toast';
 
 export const Capture3D = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [capturedVideo, setCapturedVideo] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [location, setLocation] = useState<{ lat: number; lng: number; accuracy: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [address, setAddress] = useState<string>('');
   const [locationConfirmed, setLocationConfirmed] = useState(false);
+  const [kiriEngineReady, setKiriEngineReady] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -32,14 +38,24 @@ export const Capture3D = () => {
 
   const steps = [
     { number: 1, title: 'Location', description: 'Set location', icon: MapPin },
-    { number: 2, title: 'Record', description: 'Record video', icon: Video },
-    { number: 3, title: 'Process', description: 'Generate 3D', icon: Download }
+    { number: 2, title: 'Capture', description: 'Record video', icon: Video }
   ];
 
   // Get current location on mount
   useEffect(() => {
     getCurrentLocation();
+    checkKiriEngine();
   }, []);
+
+  const checkKiriEngine = async () => {
+    try {
+      const health = await checkKiriEngineHealth();
+      setKiriEngineReady(health.status === 'ok' && health.apiKeyValid);
+    } catch (error) {
+      console.error('Error checking Kiri Engine:', error);
+      setKiriEngineReady(false);
+    }
+  };
 
   // Initialize map when location is available
   useEffect(() => {
@@ -253,16 +269,132 @@ export const Capture3D = () => {
   };
 
   const processGaussianSplatting = async () => {
-    if (!capturedVideo) {
+    if (!capturedVideo || !location) {
       return;
     }
 
     setIsProcessing(true);
+    setUploadProgress(0);
 
-    // Simulate processing (in production, this would send video to a server)
-    setTimeout(() => {
+    // AbortController for cancellation
+    const abortController = new AbortController();
+
+    try {
+      // Step 1: Convert video URL to Blob
+      toast({
+        title: 'Preparing video...',
+        description: 'Converting video format',
+      });
+      const response = await fetch(capturedVideo);
+      const videoBlob = await response.blob();
+      
+      // Import compression utilities
+      const { compressVideo, formatBytes, formatTime, estimateUploadTime } = await import('@/utils/videoCompression');
+      const { uploadVideoWithProgress } = await import('@/services/kiriEngineUpload');
+      
+      const originalSize = formatBytes(videoBlob.size);
+      console.log('Original video size:', originalSize);
+
+      // Step 2: Compress video (saves 50-70% size)
+      toast({
+        title: 'Compressing video...',
+        description: `Original: ${originalSize}. This improves upload speed.`,
+      });
+      
+      const compressedBlob = await compressVideo(videoBlob, {
+        maxWidth: 1280,
+        maxHeight: 720,
+        quality: 0.7,
+        videoBitrate: 2500000,
+      }, (progress) => {
+        setUploadProgress(progress.progress * 0.2); // 0-20%
+      });
+
+      const compressedSize = formatBytes(compressedBlob.size);
+      const savings = Math.round((1 - compressedBlob.size / videoBlob.size) * 100);
+      console.log(`Compressed to ${compressedSize} (${savings}% smaller)`);
+
+      // Step 3: Create pothole record in database
+      const { supabase } = await import('@/integrations/supabase/client');
+
+      const roadId = `road_${Math.floor(location.lat * 100)}_${Math.floor(location.lng * 100)}`;
+      const potholeNumber = Math.floor(Math.random() * 1000) + 1;
+
+      const { data: potholeData, error: potholeError } = await supabase
+        .from('potholes')
+        .insert({
+          road_id: roadId,
+          pothole_number: potholeNumber,
+          latitude: location.lat,
+          longitude: location.lng,
+          severity: 'medium',
+          detection_accuracy: 0.95,
+          status: 'reported',
+          description: `3D scan captured at ${address || 'unknown location'}`,
+          reported_by: 'mobile_app'
+        })
+        .select()
+        .single();
+
+      if (potholeError) {
+        throw new Error(`Database error: ${potholeError.message}`);
+      }
+
+      // Step 4: Upload to Kiri Engine with progress tracking
+      const estimatedTime = estimateUploadTime(compressedBlob);
+      toast({
+        title: 'Uploading to Kiri Engine...',
+        description: `${compressedSize} • Est. ${formatTime(estimatedTime)}`,
+      });
+
+      const uploadResult = await uploadVideoWithProgress(compressedBlob, {
+        isMesh: '0',
+        fileFormat: 'ply',
+        signal: abortController.signal,
+        onProgress: (progress) => {
+          // Map upload progress to 20-90%
+          setUploadProgress(20 + (progress.percentage * 0.7));
+        },
+      });
+
+      console.log('Upload successful, task ID:', uploadResult.data.serialize);
+
+      // Step 5: Save task to Supabase and navigate immediately (optimistic UI)
+      const task = await addTask(uploadResult.data.serialize, capturedVideo, potholeData.id);
+      setUploadProgress(100);
+
+      if (!task) {
+        throw new Error('Failed to save task to database');
+      }
+
+      toast({
+        title: 'Upload complete!',
+        description: 'Processing your 3D model now...',
+      });
+
+      // Navigate immediately - don't make user wait
+      navigate(`/processing/${task.id}`);
+    } catch (error) {
+      console.error('Error processing with Kiri Engine:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      // Check if it was cancelled
+      if (errorMessage.includes('cancelled') || errorMessage.includes('aborted')) {
+        toast({
+          title: 'Upload cancelled',
+          description: 'You can try again when ready',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Upload failed',
+          description: errorMessage,
+        });
+      }
+      
       setIsProcessing(false);
-    }, 3000);
+      setUploadProgress(0);
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -294,7 +426,24 @@ export const Capture3D = () => {
               3D Capture
             </h1>
 
-            <div className="w-16"></div> {/* Spacer for centering */}
+            <div className="flex items-center gap-2">
+              {kiriEngineReady === null ? (
+                <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span className="hidden sm:inline">Checking...</span>
+                </div>
+              ) : kiriEngineReady ? (
+                <div className="flex items-center gap-1.5 text-green-600 text-xs">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="hidden sm:inline">Kiri Ready</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-red-600 text-xs">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="hidden sm:inline">Kiri Offline</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -372,7 +521,7 @@ export const Capture3D = () => {
             ) : location ? (
               <>
                 {/* Map */}
-                <Card className="overflow-hidden">
+                <Card className="overflow-hidden border border-gray-200/50 shadow-sm">
                   <div className="relative aspect-[4/3] sm:aspect-[16/9]">
                     <div ref={mapContainerRef} className="absolute inset-0" />
                     <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-md">
@@ -425,15 +574,15 @@ export const Capture3D = () => {
           <div className="space-y-4">
             {/* Camera Viewfinder */}
             <Card className="overflow-hidden">
-              <div className="relative aspect-[4/3] bg-gray-900">
+              <div className="relative bg-gray-900">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto object-contain"
                 />
                 {!isCapturing && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 min-h-[300px]">
                     <Camera className="w-16 h-16 text-gray-400 mb-3" />
                     <p className="text-gray-300 font-medium">Camera inactive</p>
                     <p className="text-sm text-gray-500 mt-1">Start camera to begin capturing</p>
@@ -517,9 +666,24 @@ export const Capture3D = () => {
               )}
             </div>
 
+            {/* Kiri Engine Status */}
+            {capturedVideo && kiriEngineReady === false && (
+              <Card className="border border-gray-200/50 shadow-sm">
+                <CardContent className="py-3">
+                  <div className="flex items-start gap-2">
+                    <X className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs font-medium text-red-900 mb-1">Kiri Engine Unavailable</p>
+                      <p className="text-xs text-red-700">Please check your API key configuration</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Tips - Collapsible */}
             {!capturedVideo && (
-              <Card className="border-blue-200/50 bg-blue-50/80">
+              <Card className="border border-gray-200/50 shadow-sm">
                 <CardContent className="py-3">
                   <div className="flex items-start gap-2">
                     <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -554,26 +718,68 @@ export const Capture3D = () => {
                       </Button>
                     </div>
 
-                    <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                    <div className="bg-gray-100 rounded-lg overflow-hidden">
                       <video
                         src={capturedVideo}
                         controls
-                        className="w-full h-full object-cover"
+                        className="w-full h-auto object-contain"
                       />
                     </div>
                   </CardContent>
                 </Card>
 
+                {/* Kiri Engine Status Warning */}
+                {!kiriEngineReady && (
+                  <Card className="border border-gray-200/50 shadow-sm">
+                    <CardContent className="py-3">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium text-amber-900 mb-1">Kiri Engine Unavailable</p>
+                          <p className="text-xs text-amber-700">
+                            The 3D processing service is currently unavailable. You can still capture videos, but processing may fail.
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Progress Bar */}
+                {isProcessing && uploadProgress > 0 && (
+                  <Card className="border border-gray-200/50 shadow-sm">
+                    <CardContent className="py-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-blue-900 font-medium">Uploading to Kiri Engine</span>
+                          <span className="text-blue-700">{uploadProgress}%</span>
+                        </div>
+                        <div className="bg-blue-100 rounded-full h-2 overflow-hidden">
+                          <div
+                            className="bg-blue-500 h-full transition-all duration-300 ease-out"
+                            style={{ width: `${uploadProgress}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-blue-600">
+                          {uploadProgress < 20 && "Preparing video..."}
+                          {uploadProgress >= 20 && uploadProgress < 70 && "Uploading to Kiri Engine..."}
+                          {uploadProgress >= 70 && "Finalizing upload..."}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Generate Button */}
                 <Button
                   onClick={processGaussianSplatting}
-                  disabled={isProcessing || !capturedVideo}
+                  disabled={isProcessing || !capturedVideo || !kiriEngineReady}
                   className="w-full h-12 text-base font-semibold bg-pothole-500 hover:bg-pothole-600 disabled:opacity-50"
                 >
                   {isProcessing ? (
                     <>
                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Processing 3D Model...
+                      {uploadProgress === 0 ? 'Starting Upload...' : 'Processing 3D Model...'}
                     </>
                   ) : (
                     <>

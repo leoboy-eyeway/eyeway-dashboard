@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Pothole } from '@/types';
 import { format } from 'date-fns';
-import GaussianSplattingViewer from './GaussianSplattingViewer';
+import AdaptiveGSplatViewer from './AdaptiveGSplatViewer';
 
 interface PotholeDetailsProps {
   pothole: Pothole | null;
@@ -55,8 +55,8 @@ export const PotholeDetails = ({
   };
 
   return (
-    <Card className="animate-fade-in">
-      <CardHeader className="pb-3 border-b border-gray-200/50 pt-14 pr-16">
+    <Card className="flex flex-col h-full border border-gray-200/50 shadow-sm animate-fade-in">
+      <CardHeader className="flex-shrink-0 pb-4 border-b border-gray-100 pt-14 pr-16">
         <div className="flex justify-between items-start gap-3">
           <div className="flex-1 min-w-0">
             <CardTitle className="text-xl font-bold text-gray-900">Pothole #{pothole.id.slice(0, 8)}</CardTitle>
@@ -119,9 +119,26 @@ export const PotholeDetails = ({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
-                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">3D Gaussian Splatting</h4>
+                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">3D Point Cloud</h4>
               </div>
-              <GaussianSplattingViewer data={pothole.lidarData} />
+              {pothole.model_url || pothole.lidarData.gaussianData?.url ? (
+                <AdaptiveGSplatViewer
+                  url={pothole.model_url || pothole.lidarData.gaussianData!.url}
+                  className="h-60 w-full rounded-md overflow-hidden border border-gray-200"
+                />
+              ) : (
+                <div className="h-60 w-full rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-200 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-gray-600">3D Model Available</p>
+                    <p className="text-xs text-gray-400 mt-1">No model URL provided in data</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-4 rounded-xl border border-gray-200 space-y-4 select-text">

@@ -1,8 +1,9 @@
 
-import React, { useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import React, { useRef, useState, useEffect } from 'react';
+import { Canvas, useFrame, useLoader } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
+import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 import { GaussianSplattingData } from '@/types';
 
 interface GaussianSplattingViewerProps {
@@ -192,5 +193,6 @@ export const GaussianSplattingViewer: React.FC<GaussianSplattingViewerProps> = (
     </div>
   );
 };
+
 
 export default GaussianSplattingViewer;

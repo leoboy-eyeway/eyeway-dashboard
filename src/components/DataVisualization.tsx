@@ -129,8 +129,8 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
   const chartHeight = isMobile ? 220 : 240;
   
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader className="flex-shrink-0 pb-3">
+    <Card className="flex flex-col h-full border border-gray-200/50 shadow-sm">
+      <CardHeader className="flex-shrink-0 pb-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg sm:text-xl font-bold text-gray-900">Pothole Analytics</CardTitle>
           <HoverCard>
@@ -165,11 +165,11 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
             )}
           </TabsList>
 
-          <TabsContent value="overview" className="flex-1 overflow-y-auto">
+          <TabsContent value="overview" className="flex-1">
             <div className="space-y-3 sm:space-y-4 pb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* Summary cards */}
-                <Card className="bg-gradient-to-br from-pothole-50 to-orange-50 border-pothole-100">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Total Potholes</CardTitle>
                   </CardHeader>
@@ -181,7 +181,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-100">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Average Metrics</CardTitle>
                   </CardHeader>
@@ -196,7 +196,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
               </div>
 
               {/* Monthly trend chart */}
-              <Card className="border-gray-200">
+              <Card className="border border-gray-200/50 shadow-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Monthly Trend</CardTitle>
                 </CardHeader>
@@ -229,10 +229,10 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
           </TabsContent>
 
 
-          <TabsContent value="severity" className="flex-1 overflow-y-auto">
+          <TabsContent value="severity" className="flex-1">
             <div className="space-y-3 sm:space-y-4 pb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Severity Distribution</CardTitle>
                   </CardHeader>
@@ -270,7 +270,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Severity Comparison</CardTitle>
                   </CardHeader>
@@ -308,10 +308,10 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
           </TabsContent>
 
 
-          <TabsContent value="status" className="flex-1 overflow-y-auto">
+          <TabsContent value="status" className="flex-1">
             <div className="space-y-3 sm:space-y-4 pb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Status Distribution</CardTitle>
                   </CardHeader>
@@ -349,7 +349,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Status Comparison</CardTitle>
                   </CardHeader>
@@ -387,11 +387,11 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
           </TabsContent>
 
 
-          <TabsContent value="advanced" className="flex-1 overflow-y-auto">
+          <TabsContent value="advanced" className="flex-1">
             <div className="space-y-3 sm:space-y-4 pb-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* Detection accuracy chart */}
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Detection Accuracy by Severity</CardTitle>
                   </CardHeader>
@@ -422,7 +422,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                 </Card>
 
                 {/* Depth vs Width Scatter Plot */}
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Pothole Depth vs Width</CardTitle>
                   </CardHeader>
@@ -482,9 +482,9 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
 
           {/* New tab for mobile that combines Status and Advanced */}
           {isMobile && (
-            <TabsContent value="more" className="flex-1 overflow-y-auto">
+            <TabsContent value="more" className="flex-1">
               <div className="space-y-3 sm:space-y-4 pb-4">
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Status Distribution</CardTitle>
                   </CardHeader>
@@ -522,7 +522,7 @@ export const DataVisualization = ({ potholes }: DataVisualizationProps) => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-gray-200">
+                <Card className="border border-gray-200/50 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xs sm:text-sm font-medium text-gray-700">Detection Accuracy</CardTitle>
                   </CardHeader>
